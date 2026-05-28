@@ -2,13 +2,21 @@
   "name": "rifas-api",
   "version": "1.0.0",
   "description": "API para gerenciamento de rifas",
-  "main": "index.js",
+  "main": "dist/index.js",
   "private": true,
   "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Leonardo Feitosa",
   "license": "ISC",
-  "packageManager": "pnpm@10.12.1"
+  "packageManager": "pnpm@10.12.1",
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
 }
