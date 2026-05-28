@@ -2,12 +2,15 @@
   "name": "rifas-api",
   "version": "1.0.0",
   "description": "API para gerenciamento de rifas",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "pnpm db:up && pnpm db:wait && tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
+    "db:up": "docker-compose up -d postgres",
+    "db:wait": "tsx scripts/wait-for-db.ts",
+    "db:down": "docker-compose down",
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md,yml,yaml}\""
@@ -20,6 +23,7 @@
     "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "^22.19.19",
+    "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "eslint": "^10.4.0",
@@ -29,5 +33,11 @@
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.21.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.0.0"
   }
 }
