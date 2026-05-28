@@ -1,0 +1,14 @@
+{
+  "name": "rifas-api",
+  "version": "1.0.0",
+  "description": "API para gerenciamento de rifas",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Leonardo Feitosa",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1"
+}
