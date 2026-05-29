@@ -102,6 +102,19 @@ export class RafflesController {
   };
 
   /**
+   * GET /raffles/user/:userId
+   */
+  findByUserId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = Number(req.params['userId']);
+      const raffles = await this.rafflesService.findByUserId(userId);
+      res.status(200).json(raffles);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * DELETE /raffles/:id
    */
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

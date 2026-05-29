@@ -98,6 +98,14 @@ export class RafflesService {
     return await this.findById(id);
   }
 
+  async findByUserId(userId: number): Promise<Raffle[]> {
+    if (!Number.isInteger(userId) || userId <= 0) {
+      throw new AppError('ID do usuário inválido.', 400);
+    }
+
+    return await this.rafflesRepository.findByUserId(userId);
+  }
+
   async delete(id: number): Promise<void> {
     const raffle = await this.findById(id);
 

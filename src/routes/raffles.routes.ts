@@ -6,7 +6,8 @@ import {
   findPaginatedQuerySchema,
   publicIdParamsSchema,
   raffleIdParamsSchema,
-  updateRaffleBodySchema
+  updateRaffleBodySchema,
+  userIdParamsSchema
 } from '@shared/schemas/raffle.schema';
 import { Router, type Router as ExpressRouter } from 'express';
 
@@ -23,6 +24,11 @@ rafflesRoutes.get(
   '/public/:publicId',
   validate(publicIdParamsSchema, 'params'),
   rafflesController.findByPublicId
+);
+rafflesRoutes.get(
+  '/user/:userId',
+  validate(userIdParamsSchema, 'params'),
+  rafflesController.findByUserId
 );
 rafflesRoutes.get('/:id', validate(raffleIdParamsSchema, 'params'), rafflesController.findById);
 rafflesRoutes.patch(

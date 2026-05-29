@@ -118,6 +118,16 @@ export class RaffleRepository {
   }
 
   /**
+   * Lista todas as rifas de um determinado usuário.
+   */
+  async findByUserId(userId: number): Promise<Raffle[]> {
+    return await this.ormRepository.find({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  /**
    * Incrementa o valor total arrecadado de forma ATÔMICA.
    * Evita condição de corrida (Race Condition) ao atualizar saldos.
    */

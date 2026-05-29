@@ -51,3 +51,10 @@ export const findPaginatedQuerySchema = z.object({
   status: z.enum(RaffleStatus).optional(),
   userId: z.coerce.number().int().positive().optional()
 });
+
+export const userIdParamsSchema = z.object({
+  userId: z.coerce
+    .number({ error: `Parâmetro 'userId' deve ser um número inteiro positivo.` })
+    .int()
+    .positive()
+});
