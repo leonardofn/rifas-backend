@@ -1,7 +1,7 @@
 import { env } from '@config/env';
 import debugRoutes from '@routes/debug.routes';
 import healthRoutes from '@routes/health.routes';
-import rafflesRoutes from '@routes/raffles.routes';
+import routes from '@routes/index';
 import { AppError } from '@shared/errors/app-error';
 import { errorHandler } from '@shared/middlewares/error-handler';
 import express, { type Express } from 'express';
@@ -35,8 +35,8 @@ app.use(express.json());
 // Endpoint para healthcheck da aplicação
 app.use(healthRoutes);
 
-// Rotas de rifas
-app.use('/raffles', rafflesRoutes);
+// Habilitar o uso das rotas
+app.use(routes);
 
 if (env.nodeEnv !== 'production') {
   app.use(debugRoutes);
