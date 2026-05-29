@@ -1,5 +1,5 @@
 import { AppDataSource } from '@config/data-source';
-import Logger from '@shared/logger';
+import Logger from '@shared/logs/logger';
 import app from './app';
 
 const PORT = process.env.PORT ?? 3000;
