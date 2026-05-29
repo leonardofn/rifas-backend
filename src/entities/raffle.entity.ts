@@ -1,12 +1,14 @@
 import { RaffleStatus } from '@shared/enums/ruffle-status';
+import { bigintTransformer, numericTransformer } from '@shared/typeorm/column-transformers';
 import {
   Check,
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { User } from './user.entity';
@@ -14,7 +16,8 @@ import { User } from './user.entity';
 @Entity('raffles')
 @Check('CHK_raffles_numbers', 'start_number <= end_number')
 export class Raffle {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint', transformer: bigintTransformer })
+  @Generated('increment')
   id!: number;
 
   @Column({
@@ -46,13 +49,26 @@ export class Raffle {
   @Column({ name: 'end_number', type: 'int' })
   endNumber!: number;
 
-  @Column({ name: 'price_per_number', type: 'numeric', precision: 10, scale: 2 })
+  @Column({
+    name: 'price_per_number',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    transformer: numericTransformer
+  })
   pricePerNumber!: number;
 
   @Column({ type: 'enum', enum: RaffleStatus, default: RaffleStatus.PENDING })
   status!: RaffleStatus;
 
-  @Column({ name: 'total_collected', type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'total_collected',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformer
+  })
   totalCollected!: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
