@@ -11,6 +11,10 @@
     "db:up": "docker-compose up -d postgres",
     "db:wait": "tsx scripts/wait-for-db.ts",
     "db:down": "docker-compose down",
+    "typeorm": "tsx node_modules/typeorm/cli.js",
+    "migration:create": "tsx scripts/migration-create.ts",
+    "migration:run": "pnpm run typeorm migration:run -d src/config/data-source.ts",
+    "migration:revert": "pnpm run typeorm migration:revert -d src/config/data-source.ts",
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md,yml,yaml}\""
