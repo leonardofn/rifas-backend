@@ -1,3 +1,4 @@
+import app from './app';
 import { AppDataSource } from './config/data-source';
 
 const PORT = process.env.PORT ?? 3000;
@@ -13,7 +14,9 @@ function logError(message: string): void {
 async function bootstrap(): Promise<void> {
   await AppDataSource.initialize();
   log('✅ Conexão com Postgres estabelecida com sucesso.');
-  log(`🌐 Servidor rodando na porta ${PORT}`);
+  app.listen(PORT, () => {
+    log(`🌐 Servidor rodando na porta ${PORT}`);
+  });
 }
 
 bootstrap().catch((error: unknown) => {

@@ -36,7 +36,7 @@ async function waitForDb(): Promise<void> {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     const connected = await canConnect();
     if (connected) {
-      process.stdout.write('Postgres pronto para conexao.\n');
+      process.stdout.write('Postgres pronto para conexão.\n');
       return;
     }
 
@@ -47,7 +47,7 @@ async function waitForDb(): Promise<void> {
     await sleep(RETRY_DELAY_MS);
   }
 
-  process.stderr.write('Nao foi possivel conectar ao Postgres dentro do tempo limite.\n');
+  process.stderr.write('Não foi possível conectar ao Postgres dentro do tempo limite.\n');
   process.exit(1);
 }
 
