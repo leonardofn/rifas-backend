@@ -1,12 +1,14 @@
 import { PaymentStatus } from '@shared/enums/payment-status';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { bigintTransformer, numericTransformer } from '@shared/typeorm/column-transformers';
+import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { Raffle } from './raffle.entity';
 import { User } from './user.entity';
 
 @Entity('raffle_purchases')
 @Unique('uq_raffle_purchases_raffle_number', ['raffleId', 'numberBought'])
 export class RafflePurchase {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint', transformer: bigintTransformer })
+  @Generated('increment')
   id!: number;
 
   @Column({ name: 'number_bought', type: 'int' })
@@ -27,10 +29,16 @@ export class RafflePurchase {
   })
   paymentStatus!: PaymentStatus;
 
-  @Column({ name: 'amount_paid', type: 'numeric', precision: 10, scale: 2 })
+  @Column({
+    name: 'amount_paid',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    transformer: numericTransformer
+  })
   amountPaid!: number;
 
-  @Column({ name: 'raffle_id', type: 'bigint', nullable: true })
+  @Column({ name: 'raffle_id', type: 'bigint', nullable: true, transformer: bigintTransformer })
   raffleId!: number | null;
 
   @ManyToOne(() => Raffle, { nullable: true, onDelete: 'CASCADE' })

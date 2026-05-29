@@ -1,12 +1,14 @@
 import { SubscriptionStatus } from '@shared/enums/subscription-status';
+import { bigintTransformer } from '@shared/typeorm/column-transformers';
 import {
   Check,
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { Plan } from './plan.entity';
@@ -15,7 +17,8 @@ import { User } from './user.entity';
 @Entity('user_subscriptions')
 @Check('CHK_user_subscriptions_dates', 'ends_at IS NULL OR ends_at >= starts_at')
 export class UserSubscription {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint', transformer: bigintTransformer })
+  @Generated('increment')
   id!: number;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

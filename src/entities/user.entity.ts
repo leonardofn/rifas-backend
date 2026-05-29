@@ -1,14 +1,17 @@
+import { bigintTransformer } from '@shared/typeorm/column-transformers';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  Generated,
+  PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint', transformer: bigintTransformer })
+  @Generated('increment')
   id!: number;
 
   @Column({ type: 'varchar', length: 255 })

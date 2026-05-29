@@ -1,17 +1,20 @@
+import { bigintTransformer, numericTransformer } from '@shared/typeorm/column-transformers';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { Raffle } from './raffle.entity';
 
 @Entity('prizes')
 export class Prize {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint', transformer: bigintTransformer })
+  @Generated('increment')
   id!: number;
 
   @ManyToOne(() => Raffle, { nullable: true, onDelete: 'CASCADE' })
@@ -36,7 +39,13 @@ export class Prize {
   @Column({ name: 'drawn_at', type: 'timestamptz', nullable: true })
   drawnAt!: Date | null;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: numericTransformer
+  })
   value!: number | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
