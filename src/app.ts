@@ -1,4 +1,7 @@
 import { env } from '@config/env';
+import debugRoutes from '@routes/debug.routes';
+import { AppError } from '@shared/errors/app-error';
+import { errorHandler } from '@shared/middlewares/error-handler';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import 'reflect-metadata';
@@ -26,5 +29,17 @@ app.use(
 
 // Habilitar o uso de JSON no corpo das requisições
 app.use(express.json());
+
+if (env.nodeEnv !== 'production') {
+  app.use(debugRoutes);
+}
+
+// Captura de rota inexistente para padronizar resposta de erro
+app.use((_req, _res, next) => {
+  next(new AppError('Rota não encontrada.', 404));
+});
+
+// Middleware global de erro
+app.use(errorHandler);
 
 export default app;
