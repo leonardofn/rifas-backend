@@ -1,5 +1,5 @@
+import { PaymentStatus } from '@shared/enums/payment-status';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { PaymentStatus } from './enums';
 import { Raffle } from './raffle.entity';
 import { User } from './user.entity';
 

@@ -1,3 +1,4 @@
+import { SubscriptionStatus } from '@shared/enums/subscription-status';
 import {
   Check,
   Column,
@@ -8,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { SubscriptionStatus } from './enums';
 import { Plan } from './plan.entity';
 import { User } from './user.entity';
 

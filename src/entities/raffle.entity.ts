@@ -1,3 +1,4 @@
+import { RaffleStatus } from '@shared/enums/ruffle-status';
 import {
   Check,
   Column,
@@ -8,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { RaffleStatus } from './enums';
 import { User } from './user.entity';
 
 @Entity('raffles')
