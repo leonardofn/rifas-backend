@@ -8,7 +8,7 @@ import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
 export class RaffleRepository {
-  private ormRepository: Repository<Raffle>;
+  private readonly ormRepository: Repository<Raffle>;
 
   constructor() {
     this.ormRepository = AppDataSource.getRepository(Raffle);
