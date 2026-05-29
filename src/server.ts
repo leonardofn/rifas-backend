@@ -1,5 +1,5 @@
+import { AppDataSource } from '@config/data-source';
 import app from './app';
-import { AppDataSource } from './config/data-source';
 
 const PORT = process.env.PORT ?? 3000;
 
