@@ -9,7 +9,8 @@
     "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"],
-      "@config/*": ["./src/config/*"]
+      "@config/*": ["./src/config/*"],
+      "@shared/*": ["./src/shared/*"]
     },
     "strict": true,
     "noUncheckedIndexedAccess": true,
