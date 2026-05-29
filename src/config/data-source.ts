@@ -1,6 +1,19 @@
 import { env } from '@config/env';
 import { DataSource } from 'typeorm';
 
+function resolvePaths(): { entities: string[]; migrations: string[] } {
+  const isTsRuntime = __filename.endsWith('.ts');
+  const entitiesPath = isTsRuntime ? ['src/entities/**/*.ts'] : ['dist/entities/**/*.js'];
+  const migrationsPath = isTsRuntime ? ['src/migrations/**/*.ts'] : ['dist/migrations/**/*.js'];
+
+  return {
+    entities: entitiesPath,
+    migrations: migrationsPath
+  };
+}
+
+const { entities, migrations } = resolvePaths();
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: env.dbHost,
@@ -10,6 +23,6 @@ export const AppDataSource = new DataSource({
   database: env.dbName,
   synchronize: false,
   logging: false,
-  entities: ['src/entities/**/*.ts', 'dist/entities/**/*.js'],
-  migrations: ['src/migrations/**/*.ts', 'dist/migrations/**/*.js']
+  entities,
+  migrations
 });
