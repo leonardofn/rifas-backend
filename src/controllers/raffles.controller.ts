@@ -3,6 +3,7 @@ import type { RaffleStatus } from '@shared/enums/ruffle-status';
 import type { Request, Response } from 'express';
 
 import { type CreateRaffleDTO, type UpdateRaffleDTO } from '@dtos/raffle.dto';
+import { StatusCodes } from 'http-status-codes';
 
 export class RafflesController {
   private readonly rafflesService: RafflesService;
@@ -17,7 +18,7 @@ export class RafflesController {
   create = async (req: Request, res: Response): Promise<void> => {
     const raffleData = req.body as CreateRaffleDTO;
     const raffle = await this.rafflesService.create(raffleData);
-    res.status(201).json(raffle);
+    res.status(StatusCodes.CREATED).json(raffle);
   };
 
   /**
@@ -37,7 +38,7 @@ export class RafflesController {
       ...(userId ? { userId } : {})
     });
 
-    res.status(200).json(result);
+    res.status(StatusCodes.OK).json(result);
   };
 
   /**
@@ -46,7 +47,7 @@ export class RafflesController {
   findById = async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
     const raffle = await this.rafflesService.findById(id);
-    res.status(200).json(raffle);
+    res.status(StatusCodes.OK).json(raffle);
   };
 
   /**
@@ -55,7 +56,7 @@ export class RafflesController {
   findByPublicId = async (req: Request, res: Response): Promise<void> => {
     const publicId = (req.params['publicId'] ?? '') as string;
     const raffle = await this.rafflesService.findByPublicId(publicId);
-    res.status(200).json(raffle);
+    res.status(StatusCodes.OK).json(raffle);
   };
 
   /**
@@ -64,7 +65,7 @@ export class RafflesController {
   update = async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
     const raffle = await this.rafflesService.update(id, req.body as UpdateRaffleDTO);
-    res.status(200).json(raffle);
+    res.status(StatusCodes.OK).json(raffle);
   };
 
   /**
@@ -75,7 +76,7 @@ export class RafflesController {
     const id = Number(req.params['id']);
     const { status } = req.body as { status: RaffleStatus };
     const raffle = await this.rafflesService.changeStatus(id, status);
-    res.status(200).json(raffle);
+    res.status(StatusCodes.OK).json(raffle);
   };
 
   /**
@@ -84,7 +85,7 @@ export class RafflesController {
   findByUserId = async (req: Request, res: Response): Promise<void> => {
     const userId = Number(req.params['userId']);
     const raffles = await this.rafflesService.findByUserId(userId);
-    res.status(200).json(raffles);
+    res.status(StatusCodes.OK).json(raffles);
   };
 
   /**
@@ -93,6 +94,6 @@ export class RafflesController {
   delete = async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
     await this.rafflesService.delete(id);
-    res.status(204).send();
+    res.status(StatusCodes.NO_CONTENT).send();
   };
 }

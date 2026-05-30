@@ -3,6 +3,7 @@ import { type Raffle } from '@entities/raffle.entity';
 import { RaffleRepository } from '@repositories/raffles.repository';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
+import { StatusCodes } from 'http-status-codes';
 
 type RaffleFilters = { status?: RaffleStatus; userId?: number };
 type PaginatedRaffles = { data: Raffle[]; total: number; currentPage: number };
@@ -48,7 +49,7 @@ export class RafflesService {
     const raffle = await this.rafflesRepository.findById(id);
 
     if (!raffle) {
-      throw new AppError('Rifa não encontrada.', 404);
+      throw new AppError('Rifa não encontrada.', StatusCodes.NOT_FOUND);
     }
 
     return raffle;
@@ -58,13 +59,13 @@ export class RafflesService {
     const trimmed = publicId.trim();
 
     if (!trimmed) {
-      throw new AppError('Public ID da rifa é obrigatório.', 400);
+      throw new AppError('Public ID da rifa é obrigatório.', StatusCodes.BAD_REQUEST);
     }
 
     const raffle = await this.rafflesRepository.findByPublicId(trimmed);
 
     if (!raffle) {
-      throw new AppError('Rifa não encontrada.', 404);
+      throw new AppError('Rifa não encontrada.', StatusCodes.NOT_FOUND);
     }
 
     return raffle;
@@ -101,7 +102,7 @@ export class RafflesService {
 
   async findByUserId(userId: number): Promise<Raffle[]> {
     if (!Number.isInteger(userId) || userId <= 0) {
-      throw new AppError('ID do usuário inválido.', 400);
+      throw new AppError('ID do usuário inválido.', StatusCodes.BAD_REQUEST);
     }
 
     return await this.rafflesRepository.findByUserId(userId);
@@ -111,9 +112,11 @@ export class RafflesService {
     const raffle = await this.findById(id);
 
     if (!RafflesService.DELETABLE_STATUSES.has(raffle.status)) {
-      throw new AppError('Só é permitido excluir rifas pendentes ou canceladas.', 409, {
-        currentStatus: raffle.status
-      });
+      throw new AppError(
+        'Só é permitido excluir rifas pendentes ou canceladas.',
+        StatusCodes.CONFLICT,
+        { currentStatus: raffle.status }
+      );
     }
 
     await this.rafflesRepository.delete(id);
@@ -123,14 +126,14 @@ export class RafflesService {
     if (!Number.isFinite(amount) || amount <= 0) {
       throw new AppError(
         'O valor para incrementar o total arrecadado deve ser maior que zero.',
-        400
+        StatusCodes.BAD_REQUEST
       );
     }
 
     const raffle = await this.findById(id);
 
     if (raffle.status !== RaffleStatus.OPEN) {
-      throw new AppError('Só é permitido arrecadar em rifas abertas.', 409, {
+      throw new AppError('Só é permitido arrecadar em rifas abertas.', StatusCodes.CONFLICT, {
         currentStatus: raffle.status
       });
     }
@@ -142,19 +145,22 @@ export class RafflesService {
 
   private validateId(id: number): void {
     if (!Number.isInteger(id) || id <= 0) {
-      throw new AppError('ID da rifa inválido.', 400);
+      throw new AppError('ID da rifa inválido.', StatusCodes.BAD_REQUEST);
     }
   }
 
   private validatePagination(page: number, limit: number): void {
     if (!Number.isInteger(page) || page <= 0) {
-      throw new AppError('Parâmetro "page" deve ser um número inteiro maior que zero.', 400);
+      throw new AppError(
+        `Parâmetro "page" deve ser um número inteiro maior que zero.`,
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (!Number.isInteger(limit) || limit <= 0 || limit > RafflesService.PAGINATION_MAX_LIMIT) {
       throw new AppError(
         `Parâmetro "limit" deve ser um número inteiro entre 1 e ${RafflesService.PAGINATION_MAX_LIMIT}.`,
-        400
+        StatusCodes.BAD_REQUEST
       );
     }
   }
@@ -188,13 +194,16 @@ export class RafflesService {
 
   private sanitizeUpdateData(data: UpdateRaffleDTO): UpdateRaffleDTO {
     if (Object.keys(data).length === 0) {
-      throw new AppError('É necessário informar ao menos um campo para atualização.', 400);
+      throw new AppError(
+        'É necessário informar ao menos um campo para atualização.',
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (data.status) {
       throw new AppError(
         'Use o método de alteração de status para atualizar o status da rifa.',
-        400
+        StatusCodes.BAD_REQUEST
       );
     }
 
@@ -219,7 +228,7 @@ export class RafflesService {
     }
 
     if (Object.keys(sanitized).length === 0) {
-      throw new AppError('Não há campos válidos para atualização.', 400);
+      throw new AppError('Não há campos válidos para atualização.', StatusCodes.BAD_REQUEST);
     }
 
     return sanitized;
@@ -232,7 +241,7 @@ export class RafflesService {
     const allowedTransitions = RafflesService.ALLOWED_STATUS_TRANSITIONS[currentStatus];
 
     if (!allowedTransitions.includes(nextStatus)) {
-      throw new AppError('Transição de status inválida para a rifa.', 409, {
+      throw new AppError('Transição de status inválida para a rifa.', StatusCodes.CONFLICT, {
         currentStatus,
         nextStatus,
         allowedTransitions
@@ -242,35 +251,46 @@ export class RafflesService {
 
   private ensureRaffleIsEditable(status: RaffleStatus): void {
     if (RafflesService.NON_EDITABLE_STATUSES.has(status)) {
-      throw new AppError('Não é permitido editar rifas sorteadas, encerradas ou canceladas.', 409, {
-        currentStatus: status
-      });
+      throw new AppError(
+        'Não é permitido editar rifas sorteadas, encerradas ou canceladas.',
+        StatusCodes.CONFLICT,
+        { currentStatus: status }
+      );
     }
   }
 
   private validateUserId(userId: number): void {
     if (!Number.isInteger(userId) || userId <= 0) {
-      throw new AppError('O ID do usuário da rifa é inválido.', 400);
+      throw new AppError('O ID do usuário da rifa é inválido.', StatusCodes.BAD_REQUEST);
     }
   }
 
   private validateNumbersRange(startNumber: number, endNumber: number): void {
     if (!Number.isInteger(startNumber) || !Number.isInteger(endNumber)) {
-      throw new AppError('Os números inicial e final da rifa devem ser inteiros.', 400);
+      throw new AppError(
+        'Os números inicial e final da rifa devem ser inteiros.',
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (startNumber < 0 || endNumber < 0) {
-      throw new AppError('Os números da rifa não podem ser negativos.', 400);
+      throw new AppError('Os números da rifa não podem ser negativos.', StatusCodes.BAD_REQUEST);
     }
 
     if (startNumber > endNumber) {
-      throw new AppError('O número inicial não pode ser maior que o número final.', 400);
+      throw new AppError(
+        'O número inicial não pode ser maior que o número final.',
+        StatusCodes.BAD_REQUEST
+      );
     }
   }
 
   private validatePricePerNumber(pricePerNumber: number): void {
     if (!Number.isFinite(pricePerNumber) || pricePerNumber <= 0) {
-      throw new AppError('O valor por número da rifa deve ser maior que zero.', 400);
+      throw new AppError(
+        'O valor por número da rifa deve ser maior que zero.',
+        StatusCodes.BAD_REQUEST
+      );
     }
   }
 
@@ -279,11 +299,14 @@ export class RafflesService {
       const url = new URL(imageUrl);
 
       if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-        throw new AppError('A URL da imagem deve usar protocolo HTTP ou HTTPS.', 400);
+        throw new AppError(
+          'A URL da imagem deve usar protocolo HTTP ou HTTPS.',
+          StatusCodes.BAD_REQUEST
+        );
       }
     } catch (error: unknown) {
       if (error instanceof AppError) throw error;
-      throw new AppError('A URL da imagem da rifa é inválida.', 400);
+      throw new AppError('A URL da imagem da rifa é inválida.', StatusCodes.BAD_REQUEST);
     }
   }
 
@@ -291,7 +314,7 @@ export class RafflesService {
     const normalized = value.trim();
 
     if (!normalized) {
-      throw new AppError(message, 400);
+      throw new AppError(message, StatusCodes.BAD_REQUEST);
     }
 
     return normalized;
