@@ -31,7 +31,7 @@ rafflesRoutes.get(
   rafflesController.findByUserId
 );
 rafflesRoutes.get('/:id', validate(raffleIdParamsSchema, 'params'), rafflesController.findById);
-rafflesRoutes.patch(
+rafflesRoutes.put(
   '/:id',
   validate(raffleIdParamsSchema, 'params'),
   validate(updateRaffleBodySchema),

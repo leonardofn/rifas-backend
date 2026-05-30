@@ -55,11 +55,12 @@ export class RafflesController {
   };
 
   /**
-   * PATCH /raffles/:id
+   * PUT /raffles/:id
    */
   update = async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
-    const raffle = await this.rafflesService.update(id, req.body as UpdateRaffleDTO);
+    const updatedRaffleData = req.body as UpdateRaffleDTO;
+    const raffle = await this.rafflesService.update(id, updatedRaffleData);
     res.status(StatusCodes.OK).json(raffle);
   };
 
