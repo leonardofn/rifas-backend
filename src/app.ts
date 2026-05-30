@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { env } from '@config/env';
 import debugRoutes from '@routes/debug.routes';
 import healthRoutes from '@routes/health.routes';
@@ -6,7 +8,6 @@ import { AppError } from '@shared/errors/app-error';
 import { errorHandler } from '@shared/middlewares/error-handler';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
-import 'reflect-metadata';
 
 // Inicializar o express
 const app: Express = express();
