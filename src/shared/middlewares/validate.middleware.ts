@@ -2,6 +2,7 @@ import { type NextFunction, type Request, type Response } from 'express';
 import { type ZodType } from 'zod';
 
 import { AppError } from '@shared/errors/app-error';
+import { StatusCodes } from 'http-status-codes';
 
 type ValidateTarget = 'body' | 'params' | 'query';
 
@@ -11,7 +12,13 @@ export function validate(schema: ZodType, target: ValidateTarget = 'body') {
 
     if (!result.success) {
       const message = result.error.issues.map(i => i.message).join('; ');
-      next(new AppError(message, 400));
+      next(new AppError(message, StatusCodes.BAD_REQUEST));
+      return;
+    }
+
+    if (target === 'query') {
+      Object.assign(req.query, result.data);
+      next();
       return;
     }
 
