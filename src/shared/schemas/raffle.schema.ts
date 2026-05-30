@@ -2,30 +2,52 @@ import { z } from 'zod';
 
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 
+export const raffleIdParamsSchema = z.object({
+  id: z.coerce
+    .number({ error: `Parâmetro 'id' deve ser um número inteiro positivo.` })
+    .int({
+      error: `Parâmetro 'id' deve ser um número inteiro.`
+    })
+    .positive({ error: `Parâmetro 'id' deve ser um número inteiro positivo.` })
+});
+
+export const userIdParamsSchema = z.object({
+  userId: z.coerce
+    .number({ error: `Parâmetro 'userId' deve ser um número inteiro positivo.` })
+    .int({
+      error: `Parâmetro 'userId' deve ser um número inteiro.`
+    })
+    .positive({ error: `Parâmetro 'userId' deve ser um número inteiro positivo.` })
+});
+
+export const publicIdParamsSchema = z.object({
+  publicId: z.string().min(1, `Parâmetro 'publicId' é obrigatório.`)
+});
+
 export const createRaffleBodySchema = z.object({
   userId: z.number({ error: `Campo 'userId' é obrigatório e deve ser um número.` }).int(),
   title: z
     .string({ error: `Campo 'title' é obrigatório e deve ser uma string.` })
-    .min(1, `Campo 'title' não pode ser vazio.`),
-  description: z.string().optional(),
-  imageUrl: z.url(`Campo 'imageUrl' deve ser uma URL válida.`).optional(),
+    .min(1, { error: `Campo 'title' não pode ser vazio.` }),
+  description: z.string({ error: `Campo 'description' deve ser uma string.` }).optional(),
+  imageUrl: z.url({ error: `Campo 'imageUrl' deve ser uma URL válida.` }).optional(),
   startNumber: z
     .number({ error: `Campo 'startNumber' é obrigatório e deve ser um número.` })
-    .int()
-    .min(0),
+    .int({ error: `Campo 'startNumber' deve ser um número inteiro.` })
+    .min(0, { error: `Campo 'startNumber' deve ser um número inteiro não negativo.` }),
   endNumber: z
     .number({ error: `Campo 'endNumber' é obrigatório e deve ser um número.` })
-    .int()
-    .min(1),
+    .int({ error: `Campo 'endNumber' deve ser um número inteiro.` })
+    .min(1, { error: `Campo 'endNumber' deve ser um número inteiro positivo.` }),
   pricePerNumber: z
     .number({ error: `Campo 'pricePerNumber' é obrigatório e deve ser um número.` })
-    .positive()
+    .positive({ error: `Campo 'pricePerNumber' deve ser um número positivo.` })
 });
 
 export const updateRaffleBodySchema = z.object({
-  title: z.string().min(1, `Campo 'title' não pode ser vazio.`).optional(),
-  description: z.string().optional(),
-  imageUrl: z.url(`Campo 'imageUrl' deve ser uma URL válida.`).optional()
+  title: z.string().min(1, { error: `Campo 'title' não pode ser vazio.` }).optional(),
+  description: z.string({ error: `Campo 'description' deve ser uma string.` }).optional(),
+  imageUrl: z.url({ error: `Campo 'imageUrl' deve ser uma URL válida.` }).optional()
 });
 
 export const changeStatusBodySchema = z.object({
@@ -34,27 +56,9 @@ export const changeStatusBodySchema = z.object({
   })
 });
 
-export const raffleIdParamsSchema = z.object({
-  id: z.coerce
-    .number({ error: `Parâmetro 'id' deve ser um número inteiro positivo.` })
-    .int()
-    .positive()
-});
-
-export const publicIdParamsSchema = z.object({
-  publicId: z.string().min(1, `Parâmetro 'publicId' é obrigatório.`)
-});
-
 export const findPaginatedQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().default(10),
   status: z.enum(RaffleStatus).optional(),
-  userId: z.coerce.number().int().positive().optional()
-});
-
-export const userIdParamsSchema = z.object({
-  userId: z.coerce
-    .number({ error: `Parâmetro 'userId' deve ser um número inteiro positivo.` })
-    .int()
-    .positive()
+  userId: userIdParamsSchema.shape.userId.optional()
 });
