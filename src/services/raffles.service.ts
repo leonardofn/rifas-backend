@@ -38,7 +38,8 @@ export class RafflesService {
   }
 
   async create(data: CreateRaffleDTO): Promise<Raffle> {
-    return await this.rafflesRepository.create(this.sanitizeCreateData(data));
+    const sanitizedRaffleData = this.validateAndSanitizeRaffleData(data);
+    return await this.rafflesRepository.create(sanitizedRaffleData);
   }
 
   async findById(id: number): Promise<Raffle> {
@@ -158,10 +159,11 @@ export class RafflesService {
     }
   }
 
-  private sanitizeCreateData(data: CreateRaffleDTO): CreateRaffleDTO {
-    this.validateUserId(data.userId);
-    this.validateNumbersRange(data.startNumber, data.endNumber);
-    this.validatePricePerNumber(data.pricePerNumber);
+  private validateAndSanitizeRaffleData(data: CreateRaffleDTO): CreateRaffleDTO {
+    const { userId, startNumber, endNumber, title, pricePerNumber } = data;
+    this.validateUserId(userId);
+    this.validateNumbersRange(startNumber, endNumber);
+    this.validatePricePerNumber(pricePerNumber);
 
     const description = this.normalizeOptionalText(data.description);
     const imageUrl = this.normalizeOptionalText(data.imageUrl);
@@ -171,11 +173,11 @@ export class RafflesService {
     }
 
     const sanitized: CreateRaffleDTO = {
-      userId: data.userId,
-      title: this.normalizeRequiredText(data.title, 'Título da rifa é obrigatório.'),
-      startNumber: data.startNumber,
-      endNumber: data.endNumber,
-      pricePerNumber: data.pricePerNumber
+      userId,
+      title: this.normalizeRequiredText(title, 'Título da rifa é obrigatório.'),
+      startNumber,
+      endNumber,
+      pricePerNumber
     };
 
     if (description) sanitized.description = description;
