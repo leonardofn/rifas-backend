@@ -178,8 +178,8 @@ export class RafflesService {
       pricePerNumber: data.pricePerNumber
     };
 
-    if (description !== undefined) sanitized.description = description;
-    if (imageUrl !== undefined) sanitized.imageUrl = imageUrl;
+    if (description) sanitized.description = description;
+    if (imageUrl) sanitized.imageUrl = imageUrl;
 
     return sanitized;
   }
@@ -189,7 +189,7 @@ export class RafflesService {
       throw new AppError('É necessário informar ao menos um campo para atualização.', 400);
     }
 
-    if (data.status !== undefined) {
+    if (data.status) {
       throw new AppError(
         'Use o método de alteração de status para atualizar o status da rifa.',
         400
@@ -198,15 +198,15 @@ export class RafflesService {
 
     const sanitized: UpdateRaffleDTO = {};
 
-    if (data.title !== undefined) {
+    if (data.title) {
       sanitized.title = this.normalizeRequiredText(data.title, 'Título da rifa é obrigatório.');
     }
 
-    if (data.description !== undefined) {
+    if (data.description) {
       sanitized.description = this.normalizeOptionalText(data.description) ?? '';
     }
 
-    if (data.imageUrl !== undefined) {
+    if (data.imageUrl) {
       const imageUrl = this.normalizeOptionalText(data.imageUrl) ?? '';
 
       if (imageUrl) {
@@ -296,7 +296,7 @@ export class RafflesService {
   }
 
   private normalizeOptionalText(value?: string): string | undefined {
-    if (value === undefined) return undefined;
+    if (!value) return undefined;
     const normalized = value.trim();
     return normalized || undefined;
   }
@@ -306,15 +306,15 @@ export class RafflesService {
 
     const { status, userId } = filters;
 
-    if (userId !== undefined) {
+    if (userId) {
       this.validateUserId(userId);
     }
 
-    if (status === undefined && userId === undefined) return undefined;
+    if (!status && !userId) return undefined;
 
     const result: RaffleFilters = {};
-    if (status !== undefined) result.status = status;
-    if (userId !== undefined) result.userId = userId;
+    if (status) result.status = status;
+    if (userId) result.userId = userId;
 
     return result;
   }
