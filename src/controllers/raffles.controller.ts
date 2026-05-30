@@ -26,16 +26,11 @@ export class RafflesController {
    * Query: page, limit, status, userId
    */
   findPaginated = async (req: Request, res: Response): Promise<void> => {
-    const { page, limit, status, userId } = req.query as unknown as {
-      page: number;
-      limit: number;
-      status?: RaffleStatus;
-      userId?: number;
-    };
+    const { page, limit, status, userId } = req.query;
 
-    const result = await this.rafflesService.findPaginated(page, limit, {
-      ...(status ? { status } : {}),
-      ...(userId ? { userId } : {})
+    const result = await this.rafflesService.findPaginated(Number(page), Number(limit), {
+      ...(status ? { status: status as RaffleStatus } : {}),
+      ...(userId ? { userId: Number(userId) } : {})
     });
 
     res.status(StatusCodes.OK).json(result);
