@@ -8,6 +8,7 @@ export interface CreateRaffleDTO {
   startNumber: number;
   endNumber: number;
   pricePerNumber: number;
+  drawDate?: Date;
 }
 
 export interface UpdateRaffleDTO {
@@ -15,4 +16,5 @@ export interface UpdateRaffleDTO {
   description?: string;
   imageUrl?: string;
   status?: RaffleStatus;
+  drawDate?: Date;
 }

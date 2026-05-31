@@ -23,6 +23,14 @@ export class RafflesService {
     [RaffleStatus.CANCELLED]: []
   };
 
+  private static readonly RAFFLE_STATUS_DESCRIPTIONS: Readonly<Record<RaffleStatus, string>> = {
+    [RaffleStatus.PENDING]: 'Pendente',
+    [RaffleStatus.OPEN]: 'Aberta',
+    [RaffleStatus.DRAWN]: 'Sorteada',
+    [RaffleStatus.CLOSED]: 'Encerrada',
+    [RaffleStatus.CANCELLED]: 'Cancelada'
+  };
+
   private static readonly NON_EDITABLE_STATUSES = new Set<RaffleStatus>([
     RaffleStatus.DRAWN,
     RaffleStatus.CLOSED,
@@ -95,6 +103,8 @@ export class RafflesService {
 
     this.ensureAllowedStatusTransition(raffle.status, newStatus);
 
+    await this.validateRaffleStatus(newStatus, raffle);
+
     await this.rafflesRepository.changeStatus(id, newStatus);
 
     return await this.findById(id);
@@ -141,6 +151,31 @@ export class RafflesService {
     await this.rafflesRepository.incrementTotalCollected(id, amount);
 
     return await this.findById(id);
+  }
+
+  private async validateRaffleStatus(newStatus: RaffleStatus, raffle: Raffle): Promise<void> {
+    if (newStatus === RaffleStatus.OPEN) {
+      // Se a rifa estiver sendo marcada como aberta, garante que ela tenha uma data de sorteio definida
+      if (!raffle.drawDate) {
+        throw new AppError(
+          'Não é possível abrir uma rifa sem data de sorteio.',
+          StatusCodes.BAD_REQUEST
+        );
+      }
+
+      // Se a rifa tiver data de sorteio definida, garante que ela seja no futuro
+      if (raffle.drawDate <= new Date()) {
+        throw new AppError(
+          'Não é possível abrir uma rifa com data de sorteio no passado.',
+          StatusCodes.BAD_REQUEST
+        );
+      }
+    }
+
+    // Se a rifa estiver sendo marcada como sorteada e ainda não tiver data de sorteio, define a data atual como data do sorteio
+    if (newStatus === RaffleStatus.DRAWN && !raffle.drawDate) {
+      await this.rafflesRepository.update(raffle.id, { drawDate: new Date() });
+    }
   }
 
   private validateId(id: number): void {
@@ -241,18 +276,23 @@ export class RafflesService {
     const allowedTransitions = RafflesService.ALLOWED_STATUS_TRANSITIONS[currentStatus];
 
     if (!allowedTransitions.includes(nextStatus)) {
-      throw new AppError('Transição de status inválida para a rifa.', StatusCodes.CONFLICT, {
-        currentStatus,
-        nextStatus,
-        allowedTransitions
-      });
+      throw new AppError(
+        `Transição de status da rifa de ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[currentStatus]} para ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[nextStatus]} não é permitida.`,
+        StatusCodes.CONFLICT,
+        {
+          currentStatus,
+          nextStatus,
+          allowedTransitions
+        }
+      );
     }
   }
 
   private ensureRaffleIsEditable(status: RaffleStatus): void {
-    if (RafflesService.NON_EDITABLE_STATUSES.has(status)) {
+    const isStatusEditable = RafflesService.NON_EDITABLE_STATUSES.has(status);
+    if (isStatusEditable) {
       throw new AppError(
-        'Não é permitido editar rifas sorteadas, encerradas ou canceladas.',
+        `Não é permitido editar rifas ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[status].toLowerCase()}.`,
         StatusCodes.CONFLICT,
         { currentStatus: status }
       );

@@ -30,10 +30,6 @@ export class Raffle {
   })
   publicId!: string;
 
-  @ManyToOne(() => User, { nullable: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user!: User | null;
-
   @Column({ type: 'varchar', length: 255 })
   title!: string;
 
@@ -71,9 +67,16 @@ export class Raffle {
   })
   totalCollected!: number;
 
+  @Column({ name: 'draw_date', type: 'timestamptz', nullable: true })
+  drawDate!: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user!: User | null;
 }
