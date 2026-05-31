@@ -1,5 +1,6 @@
 import { type CreateRaffleDTO, type UpdateRaffleDTO } from '@dtos/raffle.dto';
 import { type Raffle } from '@entities/raffle.entity';
+import { PrizesRepository } from '@repositories/prizes.repository';
 import { RaffleRepository } from '@repositories/raffles.repository';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
@@ -10,6 +11,7 @@ type PaginatedRaffles = { data: Raffle[]; total: number; currentPage: number };
 
 export class RafflesService {
   private readonly rafflesRepository: RaffleRepository;
+  private readonly prizesRepository: PrizesRepository;
 
   private static readonly PAGINATION_MAX_LIMIT = 100;
 
@@ -42,8 +44,12 @@ export class RafflesService {
     RaffleStatus.CANCELLED
   ]);
 
-  constructor(repository = new RaffleRepository()) {
-    this.rafflesRepository = repository;
+  constructor(
+    raffleRepository = new RaffleRepository(),
+    prizesRepository = new PrizesRepository()
+  ) {
+    this.rafflesRepository = raffleRepository;
+    this.prizesRepository = prizesRepository;
   }
 
   async create(data: CreateRaffleDTO): Promise<Raffle> {
@@ -167,6 +173,15 @@ export class RafflesService {
       if (raffle.drawDate <= new Date()) {
         throw new AppError(
           'Não é possível abrir uma rifa com data de sorteio no passado.',
+          StatusCodes.BAD_REQUEST
+        );
+      }
+
+      // Garante que a rifa tenha prêmios definidos antes de ser aberta
+      const prizes = await this.prizesRepository.findByRaffleId(raffle.id);
+      if (prizes.length === 0) {
+        throw new AppError(
+          'Não é possível abrir uma rifa sem prêmios definidos.',
           StatusCodes.BAD_REQUEST
         );
       }
