@@ -17,10 +17,6 @@ export class Prize {
   @Generated('increment')
   id!: number;
 
-  @ManyToOne(() => Raffle, { nullable: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'raffle_id' })
-  raffle!: Raffle | null;
-
   @Column({ type: 'varchar', length: 255 })
   title!: string;
 
@@ -53,4 +49,8 @@ export class Prize {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
+
+  @ManyToOne(() => Raffle, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'raffle_id' })
+  raffle!: Raffle | null;
 }
