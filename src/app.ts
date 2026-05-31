@@ -5,9 +5,10 @@ import debugRoutes from '@routes/debug.routes';
 import healthRoutes from '@routes/health.routes';
 import routes from '@routes/index';
 import { AppError } from '@shared/errors/app-error';
-import { errorHandler } from '@shared/middlewares/error-handler';
+import { errorHandler } from '@shared/middlewares/error-handler.middleware';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
+import { StatusCodes } from 'http-status-codes';
 
 // Inicializar o express
 const app: Express = express();
@@ -40,12 +41,13 @@ app.use(healthRoutes);
 app.use(routes);
 
 if (env.nodeEnv !== 'production') {
+  // Rotas de debug e desenvolvimento só são registradas em ambientes não-produtivos
   app.use(debugRoutes);
 }
 
 // Captura de rota inexistente para padronizar resposta de erro
 app.use((_req, _res, next) => {
-  next(new AppError('Rota não encontrada.', 404));
+  next(new AppError('Rota não encontrada.', StatusCodes.NOT_FOUND));
 });
 
 // Middleware global de erro

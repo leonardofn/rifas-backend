@@ -4,6 +4,9 @@ import Logger from '@shared/logs/logger';
 import type { NextFunction, Request, Response } from 'express';
 
 type ErrorResponse = {
+  statusCode: number;
+  status: string;
+  isOperational: boolean;
   message: string;
   details?: unknown;
   stack?: string;
@@ -38,6 +41,9 @@ export function errorHandler(
   }
 
   const payload: ErrorResponse = {
+    statusCode: appError.statusCode,
+    status: appError.status,
+    isOperational: appError.isOperational,
     message: appError.message
   };
 
