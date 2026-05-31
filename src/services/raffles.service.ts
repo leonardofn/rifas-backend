@@ -262,6 +262,20 @@ export class RafflesService {
       sanitized.imageUrl = imageUrl;
     }
 
+    if (data.drawDate) {
+      const drawDate = new Date(data.drawDate);
+
+      if (isNaN(drawDate.getTime())) {
+        throw new AppError('Data de sorteio inválida.', StatusCodes.BAD_REQUEST);
+      }
+
+      if (drawDate <= new Date()) {
+        throw new AppError('A data de sorteio deve ser no futuro.', StatusCodes.BAD_REQUEST);
+      }
+
+      sanitized.drawDate = drawDate;
+    }
+
     if (Object.keys(sanitized).length === 0) {
       throw new AppError('Não há campos válidos para atualização.', StatusCodes.BAD_REQUEST);
     }
@@ -276,8 +290,10 @@ export class RafflesService {
     const allowedTransitions = RafflesService.ALLOWED_STATUS_TRANSITIONS[currentStatus];
 
     if (!allowedTransitions.includes(nextStatus)) {
+      const currentStatusDescription = RafflesService.RAFFLE_STATUS_DESCRIPTIONS[currentStatus];
+      const nextStatusDescription = RafflesService.RAFFLE_STATUS_DESCRIPTIONS[nextStatus];
       throw new AppError(
-        `Transição de status da rifa de ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[currentStatus]} para ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[nextStatus]} não é permitida.`,
+        `Transição de status da rifa de "${currentStatusDescription}" para "${nextStatusDescription}" não é permitida.`,
         StatusCodes.CONFLICT,
         {
           currentStatus,
@@ -291,8 +307,9 @@ export class RafflesService {
   private ensureRaffleIsEditable(status: RaffleStatus): void {
     const isStatusEditable = RafflesService.NON_EDITABLE_STATUSES.has(status);
     if (isStatusEditable) {
+      const statusDescription = RafflesService.RAFFLE_STATUS_DESCRIPTIONS[status];
       throw new AppError(
-        `Não é permitido editar rifas ${RafflesService.RAFFLE_STATUS_DESCRIPTIONS[status].toLowerCase()}.`,
+        `Não é permitido editar rifas ${statusDescription.toLowerCase()}s.`,
         StatusCodes.CONFLICT,
         { currentStatus: status }
       );
