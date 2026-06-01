@@ -5,6 +5,7 @@ import { RaffleRepository } from '@repositories/raffles.repository';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
 import { StatusCodes } from 'http-status-codes';
+import { UpdateResult } from 'typeorm';
 
 export class PrizesService {
   private readonly prizesRepository: PrizesRepository;
@@ -131,14 +132,14 @@ export class PrizesService {
 
     // Após remover o prêmio, atualiza a ordem dos prêmios restantes para garantir que estejam sequenciais
     const remainingPrizes = await this.prizesRepository.findByRaffleId(prize.raffle.id);
-    const upadtePrizeOrderPromises = remainingPrizes.map((remaining, index) => {
+    const updatePrizeOrderTasks = remainingPrizes.map((remaining, index) => {
       if (remaining.prizeOrder !== index + 1) {
         return this.prizesRepository.update(remaining.id, { prizeOrder: index + 1 });
       }
-      return Promise.resolve();
+      return Promise.resolve(new UpdateResult());
     });
 
-    await Promise.all(upadtePrizeOrderPromises);
+    await Promise.all(updatePrizeOrderTasks);
   }
 
   private validateId(id: number, field = 'id'): void {
