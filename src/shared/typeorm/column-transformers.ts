@@ -6,7 +6,10 @@ import { type ValueTransformer } from 'typeorm';
  */
 export const bigintTransformer: ValueTransformer = {
   to: (value: number) => value,
-  from: (value: string) => parseInt(value, 10)
+  from: (value: string) => {
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? null : parsed;
+  }
 };
 
 /**
@@ -15,5 +18,8 @@ export const bigintTransformer: ValueTransformer = {
  */
 export const numericTransformer: ValueTransformer = {
   to: (value: number) => value,
-  from: (value: string) => parseFloat(value)
+  from: (value: string) => {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? null : parsed;
+  }
 };
