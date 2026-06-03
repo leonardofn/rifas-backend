@@ -12,12 +12,12 @@ const prizesRoutes: ExpressRouter = Router();
 const prizesController = new PrizesController();
 
 prizesRoutes.post('/', validate(createPrizeBodySchema), prizesController.create);
+prizesRoutes.get('/:id', validate(prizeIdParamsSchema, 'params'), prizesController.findById);
 prizesRoutes.get(
   '/raffle/:raffleId',
   validate(raffleIdParamsSchema, 'params'),
   prizesController.findByRaffleId
 );
-prizesRoutes.get('/:id', validate(prizeIdParamsSchema, 'params'), prizesController.findById);
 prizesRoutes.put(
   '/:id',
   validate(prizeIdParamsSchema, 'params'),
