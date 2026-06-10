@@ -23,3 +23,32 @@ export const numericTransformer: ValueTransformer = {
     return isNaN(parsed) ? null : parsed;
   }
 };
+
+/**
+ * Converte colunas de data/hora do PostgreSQL para strings formatadas no padrão brasileiro.
+ * O driver `pg` retorna timestamptz como string ISO 8601.
+ */
+export const dateTransformer: ValueTransformer = {
+  to: (value: Date) => value,
+  from: (value: string) => {
+    const date = new Date(value);
+
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    const dataFormatada = date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const horaFormatada = date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    return `${dataFormatada} ${horaFormatada}`;
+  }
+};

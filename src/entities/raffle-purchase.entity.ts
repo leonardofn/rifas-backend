@@ -1,5 +1,9 @@
 import { PaymentStatus } from '@shared/enums/payment-status';
-import { bigintTransformer, numericTransformer } from '@shared/typeorm/column-transformers';
+import {
+  bigintTransformer,
+  dateTransformer,
+  numericTransformer
+} from '@shared/typeorm/column-transformers';
 import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { Raffle } from './raffle.entity';
 import { User } from './user.entity';
@@ -17,7 +21,8 @@ export class RafflePurchase {
   @Column({
     name: 'purchase_datetime',
     type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
+    transformer: dateTransformer
   })
   purchaseDatetime!: Date;
 
