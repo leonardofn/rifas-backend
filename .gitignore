@@ -59,7 +59,7 @@ Thumbs.db
 
 # Ignorar tudo da pasta .vscode...
 .vscode/*
-# ...EXCETO os arquivos de configuração de equipe (que criamos no passo anterior)
+# ...EXCETO os arquivos de configuração de equipe
 !.vscode/settings.json
 !.vscode/extensions.json
 !.vscode/launch.json
