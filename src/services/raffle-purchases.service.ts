@@ -122,9 +122,16 @@ export class RafflePurchasesService {
       );
     }
 
-    await this.purchasesRepository.update(id, data);
+    const updatedPurchase = await this.purchasesRepository.updatePaymentStatusWithRaffleSync(
+      id,
+      data.paymentStatus
+    );
 
-    return await this.findById(id);
+    if (!updatedPurchase) {
+      throw new AppError('Compra não encontrada.', StatusCodes.NOT_FOUND);
+    }
+
+    return updatedPurchase;
   }
 
   async delete(id: number): Promise<void> {
