@@ -1,6 +1,6 @@
 import { env } from '@config/env';
 import { AppError } from '@shared/errors/app-error';
-import Logger from '@shared/logs/logger';
+import Logger from '@shared/loggers/logger';
 import type { NextFunction, Request, Response } from 'express';
 
 type ErrorResponse = {
