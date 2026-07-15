@@ -1,4 +1,4 @@
-# Rifas API
+# Rifas Backend
 
 ## Estrutura de Pastas
 
