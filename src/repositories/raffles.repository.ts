@@ -38,12 +38,12 @@ export class RaffleRepository {
   }
 
   /**
-   * Busca uma rifa pelo seu ID interno (Chave Primária).
+   * Busca uma rifa pelo seu ID interno
    */
   async findById(id: number): Promise<Raffle | null> {
     return await this.ormRepository.findOne({
       where: { id },
-      relations: { user: true } // Traz os dados do dono da rifa (opcional, dependendo do caso de uso)
+      relations: { user: true, prizes: true }
     });
   }
 

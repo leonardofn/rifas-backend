@@ -8,9 +8,11 @@ import {
   Generated,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { Prize } from './prize.entity';
 import { User } from './user.entity';
 
 @Entity('raffles')
@@ -79,4 +81,7 @@ export class Raffle {
   @ManyToOne(() => User, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User | null;
+
+  @OneToMany(() => Prize, prize => prize.raffle)
+  prizes!: Prize[];
 }
