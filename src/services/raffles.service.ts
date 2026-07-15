@@ -1,4 +1,9 @@
-import { type CreateRaffleDTO, type UpdateRaffleDTO } from '@dtos/raffle.dto';
+import { type PaginatedResponse } from '@dtos/pagination.dto';
+import {
+  type CreateRaffleDTO,
+  type TrendingRaffleDTO,
+  type UpdateRaffleDTO
+} from '@dtos/raffle.dto';
 import { type Raffle } from '@entities/raffle.entity';
 import { PrizesRepository } from '@repositories/prizes.repository';
 import { RaffleRepository } from '@repositories/raffles.repository';
@@ -7,7 +12,6 @@ import { AppError } from '@shared/errors/app-error';
 import { StatusCodes } from 'http-status-codes';
 
 type RaffleFilters = { status?: RaffleStatus; userId?: number };
-type PaginatedRaffles = { data: Raffle[]; total: number; currentPage: number };
 
 export class RafflesService {
   private readonly rafflesRepository: RaffleRepository;
@@ -85,9 +89,21 @@ export class RafflesService {
     return raffle;
   }
 
-  async findPaginated(page = 1, limit = 10, filters?: RaffleFilters): Promise<PaginatedRaffles> {
+  async findPaginated(
+    page = 1,
+    limit = 10,
+    filters?: RaffleFilters
+  ): Promise<PaginatedResponse<Raffle>> {
     this.validatePagination(page, limit);
     return await this.rafflesRepository.findPaginated(page, limit, this.normalizeFilters(filters));
+  }
+
+  async findTrendingRafflesPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginatedResponse<TrendingRaffleDTO>> {
+    this.validatePagination(page, limit);
+    return await this.rafflesRepository.findTrendingRafflesPaginated(page, limit);
   }
 
   async update(id: number, data: UpdateRaffleDTO): Promise<Raffle> {

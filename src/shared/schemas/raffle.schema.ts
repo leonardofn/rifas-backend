@@ -91,9 +91,33 @@ export const changeStatusBodySchema = z.object({
   })
 });
 
+export const findPaginatedBaseQuerySchema = z.object({
+  page: z.coerce
+    .number({
+      error: `Campo "page" deve ser um número inteiro positivo.`
+    })
+    .int({
+      error: `Campo "page" deve ser um número inteiro positivo.`
+    })
+    .positive({
+      message: `Campo "page" deve ser um número inteiro positivo.`
+    })
+    .default(1),
+  limit: z.coerce
+    .number({
+      error: `Campo "limit" deve ser um número inteiro positivo.`
+    })
+    .int({
+      error: `Campo "limit" deve ser um número inteiro positivo.`
+    })
+    .positive({
+      message: `Campo "limit" deve ser um número inteiro positivo.`
+    })
+    .default(12)
+});
+
 export const findPaginatedQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().default(10),
+  ...findPaginatedBaseQuerySchema.shape,
   status: z.enum(RaffleStatus, {
     error: `Campo "status" inválido. Valores aceitos: ${Object.values(RaffleStatus).join(', ')}.`
   }),

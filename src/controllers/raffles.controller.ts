@@ -28,12 +28,37 @@ export class RafflesController {
   findPaginated = async (req: Request, res: Response): Promise<void> => {
     const { page, limit, status, userId } = req.query;
 
-    const result = await this.rafflesService.findPaginated(Number(page), Number(limit), {
+    const raffleFilters = {
       ...(status ? { status: status as RaffleStatus } : {}),
       ...(userId ? { userId: Number(userId) } : {})
-    });
+    };
+
+    const result = await this.rafflesService.findPaginated(
+      Number(page),
+      Number(limit),
+      raffleFilters
+    );
 
     res.status(StatusCodes.OK).json(result);
+  };
+
+  /**
+   * GET /raffles/trending
+   * Query: page, limit
+   */
+  findTrendingRafflesPaginated = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+
+    const safeLimit = limit > 50 ? 50 : limit;
+    const safePage = page < 1 ? 1 : page;
+
+    const paginatedResponse = await this.rafflesService.findTrendingRafflesPaginated(
+      safePage,
+      safeLimit
+    );
+
+    res.status(StatusCodes.OK).json(paginatedResponse);
   };
 
   /**

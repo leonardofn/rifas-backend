@@ -3,6 +3,7 @@ import { validate } from '@shared/middlewares/validate.middleware';
 import {
   changeStatusBodySchema,
   createRaffleBodySchema,
+  findPaginatedBaseQuerySchema,
   findPaginatedQuerySchema,
   publicIdParamsSchema,
   raffleIdParamsSchema,
@@ -19,6 +20,11 @@ rafflesRoutes.get(
   '/',
   validate(findPaginatedQuerySchema, 'query'),
   rafflesController.findPaginated
+);
+rafflesRoutes.get(
+  '/trending',
+  validate(findPaginatedBaseQuerySchema, 'query'),
+  rafflesController.findTrendingRafflesPaginated
 );
 rafflesRoutes.get(
   '/public/:publicId',

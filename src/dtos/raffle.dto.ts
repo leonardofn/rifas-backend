@@ -18,3 +18,15 @@ export interface UpdateRaffleDTO {
   status?: RaffleStatus;
   drawDate?: Date;
 }
+
+export interface TrendingRaffleDTO {
+  id: number;
+  publicId: string;
+  title: string;
+  drawDate: Date;
+  totalCollected: number;
+  paidTickets: number;
+  totalTickets: number;
+  soldRatio: number;
+  highlightScore: number;
+}
