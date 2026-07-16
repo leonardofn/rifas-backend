@@ -1,4 +1,4 @@
-import { AppDataSource } from '@/config/data-source';
+import { AppDataSource } from '@config/data-source';
 import { type CreatePrizeDTO, type UpdatePrizeDTO } from '@dtos/prize.dto';
 import { Prize } from '@entities/prize.entity';
 import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';

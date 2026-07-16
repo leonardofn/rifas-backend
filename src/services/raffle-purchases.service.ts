@@ -1,4 +1,3 @@
-import { type IPurchasePaginationOptions } from '@/shared/interfaces/pagination.interface';
 import {
   type CreateRafflePurchaseDTO,
   type UpdateRafflePurchaseDTO
@@ -8,6 +7,7 @@ import { RafflePurchaseRepository } from '@repositories/raffle-purchases.reposit
 import { RaffleRepository } from '@repositories/raffles.repository';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
+import { type IPurchasePaginationOptions } from '@shared/interfaces/pagination.interface';
 import { StatusCodes } from 'http-status-codes';
 
 interface IPaginatedPurchases {

@@ -1,6 +1,6 @@
 // src/repositories/RaffleRepository.ts
 
-import { AppDataSource } from '@/config/data-source';
+import { AppDataSource } from '@config/data-source';
 import { type PaginatedResponse } from '@dtos/pagination.dto';
 import {
   type CreateRaffleDTO,

@@ -1,10 +1,10 @@
-import { type IPurchasePaginationOptions } from '@/shared/interfaces/pagination.interface';
 import {
   type CreateRafflePurchaseDTO,
   type UpdateRafflePurchaseDTO
 } from '@dtos/raffle-purchase.dto';
 import { RafflePurchasesService } from '@services/raffle-purchases.service';
 import { type PaymentStatus } from '@shared/enums/payment-status';
+import { type IPurchasePaginationOptions } from '@shared/interfaces/pagination.interface';
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
