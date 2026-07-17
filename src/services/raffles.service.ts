@@ -232,7 +232,7 @@ export class RafflesService {
   }
 
   private validateAndSanitizeRaffleData(data: CreateRaffleDTO): CreateRaffleDTO {
-    const { userId, startNumber, endNumber, title, pricePerNumber } = data;
+    const { userId, startNumber, endNumber, title, pricePerNumber, drawDate } = data;
     this.validateUserId(userId);
     this.validateNumbersRange(startNumber, endNumber);
     this.validatePricePerNumber(pricePerNumber);
@@ -254,6 +254,19 @@ export class RafflesService {
 
     if (description) sanitized.description = description;
     if (imageUrl) sanitized.imageUrl = imageUrl;
+    if (drawDate) {
+      const raffleDrawDate = new Date(drawDate);
+
+      if (!(raffleDrawDate instanceof Date) || isNaN(raffleDrawDate.getTime())) {
+        throw new AppError('Data de sorteio inválida.', StatusCodes.BAD_REQUEST);
+      }
+
+      if (raffleDrawDate <= new Date()) {
+        throw new AppError('A data de sorteio deve ser no futuro.', StatusCodes.BAD_REQUEST);
+      }
+
+      sanitized.drawDate = raffleDrawDate;
+    }
 
     return sanitized;
   }
@@ -294,17 +307,17 @@ export class RafflesService {
     }
 
     if (data.drawDate) {
-      const drawDate = new Date(data.drawDate);
+      const raffleDrawDate = new Date(data.drawDate);
 
-      if (isNaN(drawDate.getTime())) {
+      if (!(raffleDrawDate instanceof Date) || isNaN(raffleDrawDate.getTime())) {
         throw new AppError('Data de sorteio inválida.', StatusCodes.BAD_REQUEST);
       }
 
-      if (drawDate <= new Date()) {
+      if (raffleDrawDate <= new Date()) {
         throw new AppError('A data de sorteio deve ser no futuro.', StatusCodes.BAD_REQUEST);
       }
 
-      sanitized.drawDate = drawDate;
+      sanitized.drawDate = raffleDrawDate;
     }
 
     if (Object.keys(sanitized).length === 0) {

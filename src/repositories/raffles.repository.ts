@@ -35,6 +35,7 @@ export class RaffleRepository {
 
       raffleData.description = data.description ?? null;
       raffleData.imageUrl = data.imageUrl ?? null;
+      raffleData.drawDate = data.drawDate ?? null;
 
       const raffle = manager.create(Raffle, raffleData);
 
