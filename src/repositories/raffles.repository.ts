@@ -9,7 +9,7 @@ import {
 } from '@dtos/raffle.dto';
 import { Raffle } from '@entities/raffle.entity';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
-import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';
+import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
 export class RaffleRepository {
@@ -23,7 +23,7 @@ export class RaffleRepository {
    * Cria e salva uma nova rifa no banco de dados.
    */
   async create(data: CreateRaffleDTO): Promise<Raffle> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       const raffleData: DeepPartial<Raffle> = {
         user: { id: data.userId }, // Relação com o usuário criador
         title: data.title,
@@ -192,7 +192,7 @@ export class RaffleRepository {
    * Atualiza os dados de uma rifa.
    */
   async update(id: number, data: UpdateRaffleDTO): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(Raffle, id, data);
     });
   }
@@ -201,7 +201,7 @@ export class RaffleRepository {
    * Atualiza o status da rifa isoladamente.
    */
   async changeStatus(id: number, status: RaffleStatus): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(Raffle, id, { status });
     });
   }
@@ -210,7 +210,7 @@ export class RaffleRepository {
    * Exclui uma rifa pelo seu ID interno.
    */
   async delete(id: number): Promise<DeleteResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.delete(Raffle, { id });
     });
   }
@@ -230,7 +230,7 @@ export class RaffleRepository {
    * Evita condição de corrida (Race Condition) ao atualizar saldos.
    */
   async incrementTotalCollected(id: number, amount: number): Promise<void> {
-    await executeInTransaction(this.ormRepository, async manager => {
+    await runInTransaction(this.ormRepository, async manager => {
       await manager
         .createQueryBuilder()
         .update(Raffle)

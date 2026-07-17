@@ -1,7 +1,7 @@
 import { AppDataSource } from '@config/data-source';
 import { type CreatePrizeDTO, type UpdatePrizeDTO } from '@dtos/prize.dto';
 import { Prize } from '@entities/prize.entity';
-import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';
+import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
 export class PrizesRepository {
@@ -12,7 +12,7 @@ export class PrizesRepository {
   }
 
   async create(data: CreatePrizeDTO): Promise<Prize> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       const prizeData: DeepPartial<Prize> = {
         raffle: { id: data.raffleId },
         title: data.title,
@@ -42,13 +42,13 @@ export class PrizesRepository {
   }
 
   async update(id: number, data: UpdatePrizeDTO): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(Prize, id, data);
     });
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.delete(Prize, { id });
     });
   }

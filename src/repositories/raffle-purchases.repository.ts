@@ -5,7 +5,7 @@ import {
 } from '@dtos/raffle-purchase.dto';
 import { RafflePurchase } from '@entities/raffle-purchase.entity';
 import { PaymentStatus } from '@shared/enums/payment-status';
-import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';
+import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
 interface IPaginatedPurchases<T> {
@@ -25,7 +25,7 @@ export class RafflePurchaseRepository {
    * Cria e salva uma nova compra de rifa no banco de dados.
    */
   async create(data: CreateRafflePurchaseDTO): Promise<RafflePurchase> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       const purchaseData: DeepPartial<RafflePurchase> = {
         raffle: { id: data.raffleId },
         user: { id: data.userId },
@@ -104,7 +104,7 @@ export class RafflePurchaseRepository {
    * Atualiza uma compra de rifa pelo seu ID interno.
    */
   async update(id: number, data: UpdateRafflePurchaseDTO): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(RafflePurchase, id, data);
     });
   }
@@ -116,7 +116,7 @@ export class RafflePurchaseRepository {
     id: number,
     paymentStatus: PaymentStatus
   ): Promise<RafflePurchase | null> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       const purchase = await manager
         .createQueryBuilder(RafflePurchase, 'purchase')
         .setLock('pessimistic_write') // evita condições de corrida ao atualizar o status de pagamento
@@ -161,7 +161,7 @@ export class RafflePurchaseRepository {
    * Exclui uma compra de rifa pelo seu ID interno.
    */
   async delete(id: number): Promise<DeleteResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.delete(RafflePurchase, { id });
     });
   }

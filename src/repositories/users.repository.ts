@@ -2,7 +2,7 @@ import { AppDataSource } from '@config/data-source';
 import { type PaginatedResponse } from '@dtos/pagination.dto';
 import { type CreateUserDTO, type UpdateUserDTO, type UserFiltersDTO } from '@dtos/user.dto';
 import { User } from '@entities/user.entity';
-import { executeInTransaction } from '@shared/typeorm/execute-in-transaction';
+import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
 export class UsersRepository {
@@ -13,7 +13,7 @@ export class UsersRepository {
   }
 
   async create(data: CreateUserDTO): Promise<User> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       const user = manager.create(User, {
         name: data.name,
         email: data.email,
@@ -77,7 +77,7 @@ export class UsersRepository {
   }
 
   async update(id: number, data: UpdateUserDTO): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(User, id, data);
     });
   }
@@ -87,7 +87,7 @@ export class UsersRepository {
     refreshTokenHash: string,
     refreshTokenExpiresAt: Date
   ): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(User, id, {
         refreshTokenHash,
         refreshTokenExpiresAt
@@ -96,7 +96,7 @@ export class UsersRepository {
   }
 
   async clearRefreshToken(id: number): Promise<UpdateResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.update(User, id, {
         refreshTokenHash: null,
         refreshTokenExpiresAt: null
@@ -105,7 +105,7 @@ export class UsersRepository {
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    return await executeInTransaction(this.ormRepository, async manager => {
+    return await runInTransaction(this.ormRepository, async manager => {
       return await manager.delete(User, { id });
     });
   }
