@@ -5,6 +5,7 @@ import { UsersRepository } from '@repositories/users.repository';
 import { AppError } from '@shared/errors/app-error';
 import { hash } from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
+import { type UpdateResult } from 'typeorm';
 
 export class UsersService {
   private readonly usersRepository: UsersRepository;
@@ -50,6 +51,14 @@ export class UsersService {
     return await this.usersRepository.findPaginated(page, limit, normalizedFilters);
   }
 
+  async findByEmailWithCredentials(email: string): Promise<User | null> {
+    return await this.usersRepository.findByEmailWithCredentials(email);
+  }
+
+  async findByIdWithRefreshToken(id: number): Promise<User | null> {
+    return await this.usersRepository.findByIdWithRefreshToken(id);
+  }
+
   async update(id: number, data: UpdateUserDTO): Promise<User> {
     await this.findById(id);
 
@@ -65,6 +74,22 @@ export class UsersService {
 
     await this.usersRepository.update(id, sanitizedData);
     return await this.findById(id);
+  }
+
+  async updateRefreshToken(
+    id: number,
+    refreshTokenHash: string,
+    refreshTokenExpiresAt: Date
+  ): Promise<UpdateResult> {
+    return await this.usersRepository.updateRefreshToken(
+      id,
+      refreshTokenHash,
+      refreshTokenExpiresAt
+    );
+  }
+
+  async clearRefreshToken(id: number): Promise<UpdateResult> {
+    return await this.usersRepository.clearRefreshToken(id);
   }
 
   async delete(id: number): Promise<void> {

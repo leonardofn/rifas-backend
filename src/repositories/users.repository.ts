@@ -32,6 +32,22 @@ export class UsersRepository {
     return await this.ormRepository.findOne({ where: { email } });
   }
 
+  async findByEmailWithCredentials(email: string): Promise<User | null> {
+    return await this.ormRepository
+      .createQueryBuilder('user')
+      .addSelect(['user.password', 'user.refreshTokenHash', 'user.refreshTokenExpiresAt'])
+      .where('user.email = :email', { email })
+      .getOne();
+  }
+
+  async findByIdWithRefreshToken(id: number): Promise<User | null> {
+    return await this.ormRepository
+      .createQueryBuilder('user')
+      .addSelect(['user.refreshTokenHash', 'user.refreshTokenExpiresAt'])
+      .where('user.id = :id', { id })
+      .getOne();
+  }
+
   async findPaginated(
     page: number = 1,
     limit: number = 10,
@@ -63,6 +79,28 @@ export class UsersRepository {
   async update(id: number, data: UpdateUserDTO): Promise<UpdateResult> {
     return await executeInTransaction(this.ormRepository, async manager => {
       return await manager.update(User, id, data);
+    });
+  }
+
+  async updateRefreshToken(
+    id: number,
+    refreshTokenHash: string,
+    refreshTokenExpiresAt: Date
+  ): Promise<UpdateResult> {
+    return await executeInTransaction(this.ormRepository, async manager => {
+      return await manager.update(User, id, {
+        refreshTokenHash,
+        refreshTokenExpiresAt
+      });
+    });
+  }
+
+  async clearRefreshToken(id: number): Promise<UpdateResult> {
+    return await executeInTransaction(this.ormRepository, async manager => {
+      return await manager.update(User, id, {
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null
+      });
     });
   }
 
