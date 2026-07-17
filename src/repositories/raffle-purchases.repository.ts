@@ -5,6 +5,7 @@ import {
   type UpdateRafflePurchaseDTO
 } from '@dtos/raffle-purchase.dto';
 import { RafflePurchase } from '@entities/raffle-purchase.entity';
+import { AppConstants } from '@shared/constants';
 import { PaymentStatus } from '@shared/enums/payment-status';
 import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
@@ -48,8 +49,8 @@ export class RafflePurchaseRepository {
    */
   async findByRaffleId(
     raffleId: number,
-    page: number = 1,
-    limit: number = 12,
+    page: number = AppConstants.DEFAULT_PAGE,
+    limit: number = AppConstants.DEFAULT_LIMIT,
     paymentStatus?: PaymentStatus
   ): Promise<PaginatedResponse<RafflePurchase>> {
     const query = this.ormRepository
@@ -62,7 +63,7 @@ export class RafflePurchaseRepository {
 
     query.orderBy('purchase.purchase_datetime', 'DESC');
 
-    query.skip((page - 1) * limit).take(limit);
+    query.skip((page - AppConstants.ONE) * limit).take(limit);
 
     const [data, total] = await query.getManyAndCount();
 
@@ -81,8 +82,8 @@ export class RafflePurchaseRepository {
    */
   async findByUserId(
     userId: number,
-    page: number = 1,
-    limit: number = 12,
+    page: number = AppConstants.DEFAULT_PAGE,
+    limit: number = AppConstants.DEFAULT_LIMIT,
     paymentStatus?: PaymentStatus
   ): Promise<PaginatedResponse<RafflePurchase>> {
     const query = this.ormRepository
@@ -95,7 +96,7 @@ export class RafflePurchaseRepository {
 
     query.orderBy('purchase.purchase_datetime', 'DESC');
 
-    query.skip((page - 1) * limit).take(limit);
+    query.skip((page - AppConstants.ONE) * limit).take(limit);
 
     const [data, total] = await query.getManyAndCount();
 
@@ -141,7 +142,7 @@ export class RafflePurchaseRepository {
 
       await manager.update(RafflePurchase, id, { paymentStatus });
 
-      let totalDelta = 0;
+      let totalDelta = AppConstants.ZERO;
 
       if (previousStatus !== PaymentStatus.PAID && paymentStatus === PaymentStatus.PAID) {
         totalDelta = amount;
@@ -152,9 +153,9 @@ export class RafflePurchaseRepository {
         totalDelta = -amount;
       }
 
-      if (totalDelta !== 0 && purchase.raffleId) {
+      if (totalDelta !== AppConstants.ZERO && purchase.raffleId) {
         await manager.query(
-          'UPDATE raffles SET total_collected = GREATEST(0, total_collected + $1) WHERE id = $2',
+          `UPDATE raffles SET total_collected = GREATEST(${AppConstants.ZERO}, total_collected + $1) WHERE id = $2`,
           [totalDelta, purchase.raffleId]
         );
       }
@@ -182,6 +183,6 @@ export class RafflePurchaseRepository {
     const count = await this.ormRepository.count({
       where: { raffleId, numberBought }
     });
-    return count > 0;
+    return count > AppConstants.ZERO;
   }
 }

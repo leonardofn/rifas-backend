@@ -1,3 +1,4 @@
+import { AppConstants } from '@shared/constants';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,14 +20,14 @@ function readNumberEnv(value: string | undefined, defaultValue: number): number 
 
 function readStringEnv(value: string | undefined, defaultValue: string): string {
   const normalized = value?.trim();
-  return normalized && normalized.length > 0 ? normalized : defaultValue;
+  return normalized && normalized.length > AppConstants.ZERO ? normalized : defaultValue;
 }
 
 export const env = {
   nodeEnv: readNodeEnv(process.env.NODE_ENV),
-  port: readNumberEnv(process.env.PORT, 3000),
+  port: readNumberEnv(process.env.PORT, AppConstants.DEFAULT_SERVER_PORT),
   dbHost: process.env.DB_HOST ?? 'localhost',
-  dbPort: readNumberEnv(process.env.DB_PORT, 5432),
+  dbPort: readNumberEnv(process.env.DB_PORT, AppConstants.DEFAULT_DB_PORT),
   dbUser: process.env.DB_USER ?? 'postgres',
   dbPassword: process.env.DB_PASSWORD ?? 'postgres',
   dbName: process.env.DB_NAME ?? 'rifas_db',
@@ -38,6 +39,12 @@ export const env = {
     process.env.JWT_REFRESH_SECRET,
     'troque-este-segredo-em-producao-refresh-token'
   ),
-  jwtAccessTokenTtlSeconds: readNumberEnv(process.env.JWT_ACCESS_TOKEN_TTL_SECONDS, 900),
-  jwtRefreshTokenTtlSeconds: readNumberEnv(process.env.JWT_REFRESH_TOKEN_TTL_SECONDS, 604800)
+  jwtAccessTokenTtlSeconds: readNumberEnv(
+    process.env.JWT_ACCESS_TOKEN_TTL_SECONDS,
+    AppConstants.JWT_ACCESS_TOKEN_TTL_SECONDS
+  ),
+  jwtRefreshTokenTtlSeconds: readNumberEnv(
+    process.env.JWT_REFRESH_TOKEN_TTL_SECONDS,
+    AppConstants.JWT_REFRESH_TOKEN_TTL_SECONDS
+  )
 };

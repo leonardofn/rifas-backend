@@ -4,6 +4,7 @@ import { env } from '@config/env';
 import debugRoutes from '@routes/debug.routes';
 import healthRoutes from '@routes/health.routes';
 import routes from '@routes/index';
+import { AppConstants } from '@shared/constants';
 import { AppError } from '@shared/errors/app-error';
 import { errorHandler } from '@shared/middlewares/error-handler.middleware';
 import express, { type Express } from 'express';
@@ -23,7 +24,7 @@ app.use(
     crossOriginEmbedderPolicy: isProduction,
     hsts: isProduction
       ? {
-          maxAge: 31536000,
+          maxAge: AppConstants.SECONDS_IN_YEAR,
           includeSubDomains: true,
           preload: true
         }

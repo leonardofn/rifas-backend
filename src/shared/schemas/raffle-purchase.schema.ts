@@ -1,3 +1,4 @@
+import { AppConstants } from '@shared/constants';
 import { PaymentStatus } from '@shared/enums/payment-status';
 import { z } from 'zod';
 
@@ -34,7 +35,9 @@ export const createRafflePurchaseBodySchema = z.object({
   numberBought: z
     .number({ error: `Campo "numberBought" é obrigatório e deve ser um número.` })
     .int({ error: `Campo "numberBought" deve ser um número inteiro.` })
-    .min(0, { error: `Campo "numberBought" deve ser um número não negativo.` }),
+    .min(AppConstants.ZERO, {
+      error: `Campo "numberBought" deve ser um número não negativo.`
+    }),
   amountPaid: z
     .number({ error: `Campo "amountPaid" é obrigatório e deve ser um número.` })
     .positive({ error: `Campo "amountPaid" deve ser um número positivo.` })

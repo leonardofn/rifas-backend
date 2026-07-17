@@ -2,6 +2,7 @@ import { AppDataSource } from '@config/data-source';
 import { type PaginatedResponse } from '@dtos/pagination.dto';
 import { type CreateUserDTO, type UpdateUserDTO, type UserFiltersDTO } from '@dtos/user.dto';
 import { User } from '@entities/user.entity';
+import { AppConstants } from '@shared/constants';
 import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
@@ -49,8 +50,8 @@ export class UsersRepository {
   }
 
   async findPaginated(
-    page: number = 1,
-    limit: number = 12,
+    page: number = AppConstants.DEFAULT_PAGE,
+    limit: number = AppConstants.DEFAULT_LIMIT,
     filters?: UserFiltersDTO
   ): Promise<PaginatedResponse<User>> {
     const query = this.ormRepository.createQueryBuilder('user');
@@ -61,7 +62,7 @@ export class UsersRepository {
       });
     }
 
-    query.skip((page - 1) * limit).take(limit);
+    query.skip((page - AppConstants.ONE) * limit).take(limit);
     query.orderBy('user.created_at', 'DESC');
 
     const [data, total] = await query.getManyAndCount();

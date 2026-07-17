@@ -1,4 +1,5 @@
 import { RafflesService } from '@services/raffles.service';
+import { AppConstants } from '@shared/constants';
 import type { RaffleStatus } from '@shared/enums/ruffle-status';
 import type { Request, Response } from 'express';
 
@@ -47,11 +48,13 @@ export class RafflesController {
    * Query: page, limit
    */
   findTrendingRafflesPaginated = async (req: Request, res: Response): Promise<void> => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
+    const page = parseInt(req.query.page as string, AppConstants.DECIMAL_RADIX) || AppConstants.ONE;
+    const limit =
+      parseInt(req.query.limit as string, AppConstants.DECIMAL_RADIX) || AppConstants.DEFAULT_LIMIT;
 
-    const safeLimit = limit > 50 ? 50 : limit;
-    const safePage = page < 1 ? 1 : page;
+    const safeLimit =
+      limit > AppConstants.TRENDING_MAX_LIMIT ? AppConstants.TRENDING_MAX_LIMIT : limit;
+    const safePage = page < AppConstants.ONE ? AppConstants.ONE : page;
 
     const paginatedResponse = await this.rafflesService.findTrendingRafflesPaginated(
       safePage,

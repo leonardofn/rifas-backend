@@ -2,6 +2,7 @@ import { type CreatePrizeDTO, type UpdatePrizeDTO } from '@dtos/prize.dto';
 import { type Prize } from '@entities/prize.entity';
 import { PrizesRepository } from '@repositories/prizes.repository';
 import { RaffleRepository } from '@repositories/raffles.repository';
+import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
 import { StatusCodes } from 'http-status-codes';
@@ -10,7 +11,7 @@ import { UpdateResult } from 'typeorm';
 export class PrizesService {
   private readonly prizesRepository: PrizesRepository;
   private readonly raffleRepository: RaffleRepository;
-  private readonly MAX_PRIZES_LIMIT = 3;
+  private readonly maxPrizesLimit = AppConstants.MAX_PRIZES_PER_RAFFLE;
 
   constructor(
     prizesRepository = new PrizesRepository(),
@@ -48,15 +49,15 @@ export class PrizesService {
 
     const totalPrizes = await this.prizesRepository.findByRaffleId(raffleId);
 
-    // Limita a 3 o número de prêmios por rifa
-    if (totalPrizes.length >= this.MAX_PRIZES_LIMIT) {
+    // Limita o número máximo de prêmios por rifa
+    if (totalPrizes.length >= this.maxPrizesLimit) {
       throw new AppError(
-        `Não é permitido adicionar mais de ${this.MAX_PRIZES_LIMIT} prêmios a uma rifa.`,
+        `Não é permitido adicionar mais de ${this.maxPrizesLimit} prêmios a uma rifa.`,
         StatusCodes.BAD_REQUEST
       );
     }
 
-    const prizeOrder = totalPrizes.length + 1;
+    const prizeOrder = totalPrizes.length + AppConstants.ONE;
 
     return await this.prizesRepository.create({ ...data, title, prizeOrder });
   }
@@ -98,7 +99,7 @@ export class PrizesService {
     }
 
     // Valida os campos fornecidos para atualização
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(data).length === AppConstants.ZERO) {
       throw new AppError(
         'É necessário informar ao menos um campo para atualização.',
         StatusCodes.BAD_REQUEST
@@ -133,8 +134,10 @@ export class PrizesService {
     // Após remover o prêmio, atualiza a ordem dos prêmios restantes para garantir que estejam sequenciais
     const remainingPrizes = await this.prizesRepository.findByRaffleId(prize.raffle.id);
     const updatePrizeOrderTasks = remainingPrizes.map((remaining, index) => {
-      if (remaining.prizeOrder !== index + 1) {
-        return this.prizesRepository.update(remaining.id, { prizeOrder: index + 1 });
+      if (remaining.prizeOrder !== index + AppConstants.ONE) {
+        return this.prizesRepository.update(remaining.id, {
+          prizeOrder: index + AppConstants.ONE
+        });
       }
       return Promise.resolve(new UpdateResult());
     });
@@ -143,7 +146,7 @@ export class PrizesService {
   }
 
   private validateId(id: number, field = 'id'): void {
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= AppConstants.ZERO) {
       throw new AppError(
         `${field === 'id' ? 'ID do prêmio' : 'ID da rifa'} inválido.`,
         StatusCodes.BAD_REQUEST

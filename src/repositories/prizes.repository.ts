@@ -1,6 +1,7 @@
 import { AppDataSource } from '@config/data-source';
 import { type CreatePrizeDTO, type UpdatePrizeDTO } from '@dtos/prize.dto';
 import { Prize } from '@entities/prize.entity';
+import { AppConstants } from '@shared/constants';
 import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
 
@@ -18,7 +19,7 @@ export class PrizesRepository {
         title: data.title,
         description: data.description ?? null,
         imageUrl: data.imageUrl ?? null,
-        prizeOrder: data.prizeOrder ?? 1,
+        prizeOrder: data.prizeOrder ?? AppConstants.ONE,
         value: data.value ?? null
       };
 

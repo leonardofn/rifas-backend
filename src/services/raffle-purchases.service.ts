@@ -6,6 +6,7 @@ import {
 import { type RafflePurchase } from '@entities/raffle-purchase.entity';
 import { RafflePurchaseRepository } from '@repositories/raffle-purchases.repository';
 import { RaffleRepository } from '@repositories/raffles.repository';
+import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
 import { type IPurchasePaginationOptions } from '@shared/interfaces/pagination.interface';
@@ -14,8 +15,6 @@ import { StatusCodes } from 'http-status-codes';
 export class RafflePurchasesService {
   private readonly purchasesRepository: RafflePurchaseRepository;
   private readonly rafflesRepository: RaffleRepository;
-
-  private static readonly PAGINATION_MAX_LIMIT = 100;
 
   constructor(
     purchasesRepository = new RafflePurchaseRepository(),
@@ -78,7 +77,11 @@ export class RafflePurchasesService {
     raffleId: number,
     options: IPurchasePaginationOptions
   ): Promise<PaginatedResponse<RafflePurchase>> {
-    const { page = 1, limit = 12, paymentStatus } = options;
+    const {
+      page = AppConstants.DEFAULT_PAGE,
+      limit = AppConstants.DEFAULT_LIMIT,
+      paymentStatus
+    } = options;
 
     this.validateId(raffleId);
     this.validatePagination(page, limit);
@@ -95,7 +98,11 @@ export class RafflePurchasesService {
     userId: number,
     options: IPurchasePaginationOptions
   ): Promise<PaginatedResponse<RafflePurchase>> {
-    const { page = 1, limit = 12, paymentStatus } = options;
+    const {
+      page = AppConstants.DEFAULT_PAGE,
+      limit = AppConstants.DEFAULT_LIMIT,
+      paymentStatus
+    } = options;
 
     this.validateId(userId);
     this.validatePagination(page, limit);
@@ -135,19 +142,19 @@ export class RafflePurchasesService {
   }
 
   private validateId(id: number): void {
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= AppConstants.ZERO) {
       throw new AppError('ID inválido.', StatusCodes.BAD_REQUEST);
     }
   }
 
   private validatePagination(page: number, limit: number): void {
-    if (page < 1) {
+    if (page < AppConstants.ONE) {
       throw new AppError('Página deve ser maior ou igual a 1.', StatusCodes.BAD_REQUEST);
     }
 
-    if (limit < 1 || limit > RafflePurchasesService.PAGINATION_MAX_LIMIT) {
+    if (limit < AppConstants.ONE || limit > AppConstants.PAGINATION_MAX_LIMIT) {
       throw new AppError(
-        `Limite deve ser entre 1 e ${RafflePurchasesService.PAGINATION_MAX_LIMIT}.`,
+        `Limite deve ser entre ${AppConstants.ONE} e ${AppConstants.PAGINATION_MAX_LIMIT}.`,
         StatusCodes.BAD_REQUEST
       );
     }

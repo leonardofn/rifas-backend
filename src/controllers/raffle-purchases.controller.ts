@@ -3,6 +3,7 @@ import {
   type UpdateRafflePurchaseDTO
 } from '@dtos/raffle-purchase.dto';
 import { RafflePurchasesService } from '@services/raffle-purchases.service';
+import { AppConstants } from '@shared/constants';
 import { type PaymentStatus } from '@shared/enums/payment-status';
 import { type IPurchasePaginationOptions } from '@shared/interfaces/pagination.interface';
 import type { Request, Response } from 'express';
@@ -42,8 +43,8 @@ export class RafflePurchasesController {
     const { page, limit, paymentStatus } = req.query;
 
     const paginationOptions: IPurchasePaginationOptions = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 12,
+      page: Number(page) || AppConstants.DEFAULT_PAGE,
+      limit: Number(limit) || AppConstants.DEFAULT_LIMIT,
       paymentStatus: (paymentStatus as PaymentStatus) || undefined
     };
 
@@ -61,8 +62,8 @@ export class RafflePurchasesController {
     const { page, limit, paymentStatus } = req.query;
 
     const paginationOptions: IPurchasePaginationOptions = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 12,
+      page: Number(page) || AppConstants.DEFAULT_PAGE,
+      limit: Number(limit) || AppConstants.DEFAULT_LIMIT,
       paymentStatus: (paymentStatus as PaymentStatus) || undefined
     };
 

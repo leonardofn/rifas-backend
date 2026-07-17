@@ -4,6 +4,7 @@
 
 ```plain
 src/
+├── @types/                 # Declarações de tipos globais (ex: Express, Request, Response)
 ├── config/                 # Configurações globais (banco de dados, variáveis de ambiente)
 │   └── data-source.ts      # Arquivo principal de conexão do TypeORM
 ├── controllers/            # Recebem as requisições HTTP (req, res)

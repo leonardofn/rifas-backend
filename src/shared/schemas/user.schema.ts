@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AppConstants } from '@shared/constants';
+
 export const userIdParamsSchema = z.object({
   id: z.coerce
     .number({ error: `Parâmetro "id" deve ser um número inteiro positivo.` })
@@ -10,14 +12,18 @@ export const userIdParamsSchema = z.object({
 const userNameSchema = z
   .string({ error: `Campo "name" é obrigatório e deve ser uma string.` })
   .trim()
-  .min(1, { error: `Campo "name" não pode ser vazio.` })
-  .max(255, { error: `Campo "name" deve ter no máximo 255 caracteres.` });
+  .min(AppConstants.ONE, { error: `Campo "name" não pode ser vazio.` })
+  .max(AppConstants.VARCHAR_DEFAULT_LENGTH, {
+    error: `Campo "name" deve ter no máximo 255 caracteres.`
+  });
 
 const userEmailSchema = z
   .string({ error: `Campo "email" é obrigatório e deve ser uma string.` })
   .trim()
   .toLowerCase()
-  .max(255, { error: `Campo "email" deve ter no máximo 255 caracteres.` })
+  .max(AppConstants.VARCHAR_DEFAULT_LENGTH, {
+    error: `Campo "email" deve ter no máximo 255 caracteres.`
+  })
   .pipe(
     z.email({
       error: `Campo "email" deve ser um e-mail válido.`,
@@ -27,8 +33,12 @@ const userEmailSchema = z
 
 const userPasswordSchema = z
   .string({ error: `Campo "password" é obrigatório e deve ser uma string.` })
-  .min(6, { error: `Campo "password" deve ter pelo menos 6 caracteres.` })
-  .max(255, { error: `Campo "password" deve ter no máximo 255 caracteres.` });
+  .min(AppConstants.MIN_PASSWORD_LENGTH, {
+    error: `Campo "password" deve ter pelo menos 6 caracteres.`
+  })
+  .max(AppConstants.VARCHAR_DEFAULT_LENGTH, {
+    error: `Campo "password" deve ter no máximo 255 caracteres.`
+  });
 
 export const createUserBodySchema = z.object({
   name: userNameSchema,
@@ -53,7 +63,7 @@ export const findUsersPaginatedQuerySchema = z.object({
     .positive({
       error: `Campo "page" deve ser um número inteiro positivo.`
     })
-    .default(1),
+    .default(AppConstants.DEFAULT_PAGE),
   limit: z.coerce
     .number({
       error: `Campo "limit" deve ser um número inteiro positivo.`
@@ -64,10 +74,10 @@ export const findUsersPaginatedQuerySchema = z.object({
     .positive({
       error: `Campo "limit" deve ser um número inteiro positivo.`
     })
-    .default(10),
+    .default(AppConstants.DEFAULT_USERS_LIMIT),
   search: z
     .string({ error: `Campo "search" deve ser uma string.` })
     .trim()
-    .min(1, { error: `Campo "search" não pode ser vazio.` })
+    .min(AppConstants.ONE, { error: `Campo "search" não pode ser vazio.` })
     .optional()
 });

@@ -9,14 +9,13 @@ import {
 import { type User } from '@entities/user.entity';
 import { UsersService } from '@services/users.service';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@shared/auth/jwt';
+import { AppConstants } from '@shared/constants';
 import { AppError } from '@shared/errors/app-error';
 import { compare, hash } from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 
 export class AuthService {
   private readonly usersService: UsersService;
-
-  private static readonly BCRYPT_SALT_ROUNDS = 12;
 
   constructor(usersService = new UsersService()) {
     this.usersService = usersService;
@@ -59,7 +58,7 @@ export class AuthService {
     const payload = verifyRefreshToken(data.refreshToken);
     const userId = Number(payload.sub);
 
-    if (!Number.isInteger(userId) || userId <= 0) {
+    if (!Number.isInteger(userId) || userId <= AppConstants.ZERO) {
       throw new AppError('Refresh token inválido.', StatusCodes.UNAUTHORIZED);
     }
 
@@ -107,8 +106,10 @@ export class AuthService {
     const accessToken = generateAccessToken(user.id, user.email);
     const refreshToken = generateRefreshToken(user.id, user.email);
 
-    const refreshTokenHash = await hash(refreshToken, AuthService.BCRYPT_SALT_ROUNDS);
-    const refreshTokenExpiresAt = new Date(Date.now() + env.jwtRefreshTokenTtlSeconds * 1000);
+    const refreshTokenHash = await hash(refreshToken, AppConstants.BCRYPT_SALT_ROUNDS);
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + env.jwtRefreshTokenTtlSeconds * AppConstants.MILLISECONDS_IN_SECOND
+    );
 
     await this.usersService.updateRefreshToken(user.id, refreshTokenHash, refreshTokenExpiresAt);
 

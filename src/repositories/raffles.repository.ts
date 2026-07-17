@@ -8,6 +8,7 @@ import {
   type UpdateRaffleDTO
 } from '@dtos/raffle.dto';
 import { Raffle } from '@entities/raffle.entity';
+import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
@@ -67,8 +68,8 @@ export class RaffleRepository {
    * Uso de QueryBuilder para melhor performance e consultas complexas.
    */
   async findPaginated(
-    page: number = 1,
-    limit: number = 12,
+    page: number = AppConstants.DEFAULT_PAGE,
+    limit: number = AppConstants.DEFAULT_LIMIT,
     filters?: { status?: RaffleStatus; userId?: number }
   ): Promise<PaginatedResponse<Raffle>> {
     const query = this.ormRepository.createQueryBuilder('raffle');
@@ -82,7 +83,7 @@ export class RaffleRepository {
     }
 
     // Paginação
-    query.skip((page - 1) * limit).take(limit);
+    query.skip((page - AppConstants.ONE) * limit).take(limit);
 
     // Ordenar pelas mais recentes
     query.orderBy('raffle.created_at', 'DESC');
@@ -100,11 +101,11 @@ export class RaffleRepository {
   }
 
   async findTrendingRafflesPaginated(
-    page: number = 1,
-    limit: number = 12
+    page: number = AppConstants.DEFAULT_PAGE,
+    limit: number = AppConstants.DEFAULT_LIMIT
   ): Promise<PaginatedResponse<TrendingRaffleDTO>> {
     // Calcula quantos itens devemos pular
-    const offset = (page - 1) * limit;
+    const offset = (page - AppConstants.ONE) * limit;
 
     // QUERY DE DADOS (Com LIMIT e OFFSET)
     // O TypeORM substitui $1 e $2 pelos parâmetros passados no array
@@ -116,27 +117,27 @@ export class RaffleRepository {
         r.draw_date,
         r.total_collected,
         COUNT(rp.id) FILTER (WHERE rp.payment_status = 'paid') AS paid_tickets,
-        (r.end_number - r.start_number + 1) AS total_tickets,
+        (r.end_number - r.start_number + ${AppConstants.ONE}) AS total_tickets,
         COALESCE(
           COUNT(rp.id) FILTER (WHERE rp.payment_status = 'paid')::numeric
-          / NULLIF((r.end_number - r.start_number + 1), 0),
-          0
+          / NULLIF((r.end_number - r.start_number + ${AppConstants.ONE}), ${AppConstants.ZERO}),
+          ${AppConstants.ZERO}
         ) AS sold_ratio,
         (
-          0.60 * COALESCE(
+          ${AppConstants.TRENDING_SOLD_RATIO_WEIGHT} * COALESCE(
             COUNT(rp.id) FILTER (WHERE rp.payment_status = 'paid')::numeric
-            / NULLIF((r.end_number - r.start_number + 1), 0),
-            0
+            / NULLIF((r.end_number - r.start_number + ${AppConstants.ONE}), ${AppConstants.ZERO}),
+            ${AppConstants.ZERO}
           )
-          + 0.25 * LEAST(r.total_collected / 10000.0, 1.0)
-          + 0.15 * (1.0 / (1 + EXTRACT(EPOCH FROM (r.draw_date - NOW())) / 86400.0))
+          + ${AppConstants.TRENDING_TOTAL_COLLECTED_WEIGHT} * LEAST(r.total_collected / ${AppConstants.TRENDING_TOTAL_COLLECTED_NORMALIZER}.0, ${AppConstants.ONE}.0)
+          + ${AppConstants.TRENDING_DRAW_DATE_WEIGHT} * (${AppConstants.ONE}.0 / (${AppConstants.ONE} + EXTRACT(EPOCH FROM (r.draw_date - NOW())) / ${AppConstants.SECONDS_IN_DAY}.0))
         ) AS highlight_score
       FROM raffles r
       LEFT JOIN raffle_purchases rp ON rp.raffle_id = r.id
       WHERE r.status = 'open'
         AND r.draw_date IS NOT NULL
         AND r.draw_date > NOW()
-        AND EXISTS (SELECT 1 FROM prizes p WHERE p.raffle_id = r.id)
+        AND EXISTS (SELECT ${AppConstants.ONE} FROM prizes p WHERE p.raffle_id = r.id)
       GROUP BY r.id
       ORDER BY highlight_score DESC, r.created_at DESC
       LIMIT $1 OFFSET $2;
@@ -145,12 +146,12 @@ export class RaffleRepository {
     // QUERY DE CONTAGEM TOTAL
     // Não faz LEFT JOIN nem matemática, apenas conta quantas rifas válidas existem
     const countSql = `
-      SELECT COUNT(1) AS total
+      SELECT COUNT(${AppConstants.ONE}) AS total
       FROM raffles r
       WHERE r.status = 'open'
         AND r.draw_date IS NOT NULL
         AND r.draw_date > NOW()
-        AND EXISTS (SELECT 1 FROM prizes p WHERE p.raffle_id = r.id);
+        AND EXISTS (SELECT ${AppConstants.ONE} FROM prizes p WHERE p.raffle_id = r.id);
     `;
 
     // Executa ambas as queries ao mesmo tempo para ganhar tempo
@@ -159,7 +160,10 @@ export class RaffleRepository {
       this.ormRepository.query(countSql)
     ]);
 
-    const totalItems = parseInt(countResult[0].total || 0, 10);
+    const totalItems = parseInt(
+      countResult[AppConstants.ZERO].total || AppConstants.ZERO,
+      AppConstants.DECIMAL_RADIX
+    );
     const totalPages = Math.ceil(totalItems / limit);
 
     // Mapeia e converte os dados do Postgres
@@ -169,11 +173,17 @@ export class RaffleRepository {
         publicId: row.public_id as string,
         title: row.title as string,
         drawDate: row.draw_date as Date,
-        totalCollected: parseFloat((row.total_collected as string) || '0'),
-        paidTickets: parseInt((row.paid_tickets as string) || '0', 10),
-        totalTickets: parseInt((row.total_tickets as string) || '0', 10),
-        soldRatio: parseFloat((row.sold_ratio as string) || '0'),
-        highlightScore: parseFloat((row.highlight_score as string) || '0')
+        totalCollected: parseFloat((row.total_collected as string) || String(AppConstants.ZERO)),
+        paidTickets: parseInt(
+          (row.paid_tickets as string) || String(AppConstants.ZERO),
+          AppConstants.DECIMAL_RADIX
+        ),
+        totalTickets: parseInt(
+          (row.total_tickets as string) || String(AppConstants.ZERO),
+          AppConstants.DECIMAL_RADIX
+        ),
+        soldRatio: parseFloat((row.sold_ratio as string) || String(AppConstants.ZERO)),
+        highlightScore: parseFloat((row.highlight_score as string) || String(AppConstants.ZERO))
       })
     );
 

@@ -2,6 +2,7 @@ import { type PaginatedResponse } from '@dtos/pagination.dto';
 import { type CreateUserDTO, type UpdateUserDTO, type UserFiltersDTO } from '@dtos/user.dto';
 import { type User } from '@entities/user.entity';
 import { UsersRepository } from '@repositories/users.repository';
+import { AppConstants } from '@shared/constants';
 import { AppError } from '@shared/errors/app-error';
 import { hash } from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
@@ -9,9 +10,6 @@ import { type UpdateResult } from 'typeorm';
 
 export class UsersService {
   private readonly usersRepository: UsersRepository;
-
-  private static readonly PAGINATION_MAX_LIMIT = 100;
-  private static readonly BCRYPT_SALT_ROUNDS = 12;
 
   constructor(usersRepository = new UsersRepository()) {
     this.usersRepository = usersRepository;
@@ -40,8 +38,8 @@ export class UsersService {
   }
 
   async findPaginated(
-    page = 1,
-    limit = 12,
+    page = AppConstants.DEFAULT_PAGE,
+    limit = AppConstants.DEFAULT_LIMIT,
     filters?: UserFiltersDTO
   ): Promise<PaginatedResponse<User>> {
     this.validatePagination(page, limit);
@@ -98,22 +96,26 @@ export class UsersService {
   }
 
   private validateId(id: number): void {
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= AppConstants.ZERO) {
       throw new AppError('ID do usuário inválido.', StatusCodes.BAD_REQUEST);
     }
   }
 
   private validatePagination(page: number, limit: number): void {
-    if (!Number.isInteger(page) || page <= 0) {
+    if (!Number.isInteger(page) || page <= AppConstants.ZERO) {
       throw new AppError(
         `Parâmetro "page" deve ser um número inteiro maior que zero.`,
         StatusCodes.BAD_REQUEST
       );
     }
 
-    if (!Number.isInteger(limit) || limit <= 0 || limit > UsersService.PAGINATION_MAX_LIMIT) {
+    if (
+      !Number.isInteger(limit) ||
+      limit <= AppConstants.ZERO ||
+      limit > AppConstants.PAGINATION_MAX_LIMIT
+    ) {
       throw new AppError(
-        `Parâmetro "limit" deve ser um número inteiro entre 1 e ${UsersService.PAGINATION_MAX_LIMIT}.`,
+        `Parâmetro "limit" deve ser um número inteiro entre ${AppConstants.ONE} e ${AppConstants.PAGINATION_MAX_LIMIT}.`,
         StatusCodes.BAD_REQUEST
       );
     }
@@ -146,7 +148,7 @@ export class UsersService {
   }
 
   private validateAndSanitizeUpdateData(data: UpdateUserDTO): UpdateUserDTO {
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(data).length === AppConstants.ZERO) {
       throw new AppError(
         'É necessário informar ao menos um campo para atualização.',
         StatusCodes.BAD_REQUEST
@@ -167,7 +169,7 @@ export class UsersService {
       sanitized.password = this.validateAndNormalizePassword(data.password);
     }
 
-    if (Object.keys(sanitized).length === 0) {
+    if (Object.keys(sanitized).length === AppConstants.ZERO) {
       throw new AppError('Não há campos válidos para atualização.', StatusCodes.BAD_REQUEST);
     }
 
@@ -216,7 +218,7 @@ export class UsersService {
   private validateAndNormalizePassword(password: string): string {
     const normalized = this.normalizeRequiredText(password, 'Senha do usuário é obrigatória.');
 
-    if (normalized.length < 6) {
+    if (normalized.length < AppConstants.MIN_PASSWORD_LENGTH) {
       throw new AppError(
         'A senha do usuário deve ter pelo menos 6 caracteres.',
         StatusCodes.BAD_REQUEST
@@ -227,6 +229,6 @@ export class UsersService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return await hash(password, UsersService.BCRYPT_SALT_ROUNDS);
+    return await hash(password, AppConstants.BCRYPT_SALT_ROUNDS);
   }
 }

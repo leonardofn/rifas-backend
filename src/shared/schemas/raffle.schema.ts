@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 
 export const raffleIdParamsSchema = z.object({
@@ -21,7 +22,7 @@ export const userIdParamsSchema = z.object({
 });
 
 export const publicIdParamsSchema = z.object({
-  publicId: z.string().min(1, `Parâmetro "publicId" é obrigatório.`)
+  publicId: z.string().min(AppConstants.ONE, `Parâmetro "publicId" é obrigatório.`)
 });
 
 const drawDateSchema = z
@@ -56,17 +57,21 @@ export const createRaffleBodySchema = z.object({
   userId: z.number({ error: `Campo "userId" é obrigatório e deve ser um número.` }).int(),
   title: z
     .string({ error: `Campo "title" é obrigatório e deve ser uma string.` })
-    .min(1, { error: `Campo "title" não pode ser vazio.` }),
+    .min(AppConstants.ONE, { error: `Campo "title" não pode ser vazio.` }),
   description: z.string({ error: `Campo "description" deve ser uma string.` }).optional(),
   imageUrl: z.url({ error: `Campo "imageUrl" deve ser uma URL válida.` }).optional(),
   startNumber: z
     .number({ error: `Campo "startNumber" é obrigatório e deve ser um número.` })
     .int({ error: `Campo "startNumber" deve ser um número inteiro.` })
-    .min(0, { error: `Campo "startNumber" deve ser um número inteiro não negativo.` }),
+    .min(AppConstants.ZERO, {
+      error: `Campo "startNumber" deve ser um número inteiro não negativo.`
+    }),
   endNumber: z
     .number({ error: `Campo "endNumber" é obrigatório e deve ser um número.` })
     .int({ error: `Campo "endNumber" deve ser um número inteiro.` })
-    .min(1, { error: `Campo "endNumber" deve ser um número inteiro positivo.` }),
+    .min(AppConstants.ONE, {
+      error: `Campo "endNumber" deve ser um número inteiro positivo.`
+    }),
   pricePerNumber: z
     .number({ error: `Campo "pricePerNumber" é obrigatório e deve ser um número.` })
     .positive({ error: `Campo "pricePerNumber" deve ser um número positivo.` }),
@@ -74,7 +79,10 @@ export const createRaffleBodySchema = z.object({
 });
 
 export const updateRaffleBodySchema = z.object({
-  title: z.string().min(1, { error: `Campo "title" não pode ser vazio.` }).optional(),
+  title: z
+    .string()
+    .min(AppConstants.ONE, { error: `Campo "title" não pode ser vazio.` })
+    .optional(),
   description: z.string({ error: `Campo "description" deve ser uma string.` }).optional(),
   imageUrl: z.url({ error: `Campo "imageUrl" deve ser uma URL válida.` }).optional(),
   status: z
@@ -102,7 +110,7 @@ export const findPaginatedBaseQuerySchema = z.object({
     .positive({
       message: `Campo "page" deve ser um número inteiro positivo.`
     })
-    .default(1),
+    .default(AppConstants.DEFAULT_PAGE),
   limit: z.coerce
     .number({
       error: `Campo "limit" deve ser um número inteiro positivo.`
@@ -113,7 +121,7 @@ export const findPaginatedBaseQuerySchema = z.object({
     .positive({
       message: `Campo "limit" deve ser um número inteiro positivo.`
     })
-    .default(12)
+    .default(AppConstants.DEFAULT_LIMIT)
 });
 
 export const findPaginatedQuerySchema = z.object({

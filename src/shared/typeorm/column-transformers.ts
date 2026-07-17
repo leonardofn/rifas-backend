@@ -1,3 +1,4 @@
+import { AppConstants } from '@shared/constants';
 import { type ValueTransformer } from 'typeorm';
 
 /**
@@ -7,7 +8,7 @@ import { type ValueTransformer } from 'typeorm';
 export const bigintTransformer: ValueTransformer = {
   to: (value: number) => value,
   from: (value: string) => {
-    const parsed = parseInt(value, 10);
+    const parsed = parseInt(value, AppConstants.DECIMAL_RADIX);
     return isNaN(parsed) ? null : parsed;
   }
 };

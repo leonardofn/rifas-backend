@@ -7,6 +7,7 @@ import {
 import { type Raffle } from '@entities/raffle.entity';
 import { PrizesRepository } from '@repositories/prizes.repository';
 import { RaffleRepository } from '@repositories/raffles.repository';
+import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
 import { StatusCodes } from 'http-status-codes';
@@ -16,8 +17,6 @@ type RaffleFilters = { status?: RaffleStatus; userId?: number };
 export class RafflesService {
   private readonly rafflesRepository: RaffleRepository;
   private readonly prizesRepository: PrizesRepository;
-
-  private static readonly PAGINATION_MAX_LIMIT = 100;
 
   private static readonly ALLOWED_STATUS_TRANSITIONS: Readonly<
     Record<RaffleStatus, readonly RaffleStatus[]>
@@ -90,8 +89,8 @@ export class RafflesService {
   }
 
   async findPaginated(
-    page = 1,
-    limit = 12,
+    page = AppConstants.DEFAULT_PAGE,
+    limit = AppConstants.DEFAULT_LIMIT,
     filters?: RaffleFilters
   ): Promise<PaginatedResponse<Raffle>> {
     this.validatePagination(page, limit);
@@ -133,7 +132,7 @@ export class RafflesService {
   }
 
   async findByUserId(userId: number): Promise<Raffle[]> {
-    if (!Number.isInteger(userId) || userId <= 0) {
+    if (!Number.isInteger(userId) || userId <= AppConstants.ZERO) {
       throw new AppError('ID do usuário inválido.', StatusCodes.BAD_REQUEST);
     }
 
@@ -155,7 +154,7 @@ export class RafflesService {
   }
 
   async incrementTotalCollected(id: number, amount: number): Promise<Raffle> {
-    if (!Number.isFinite(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= AppConstants.ZERO) {
       throw new AppError(
         'O valor para incrementar o total arrecadado deve ser maior que zero.',
         StatusCodes.BAD_REQUEST
@@ -195,7 +194,7 @@ export class RafflesService {
 
       // Garante que a rifa tenha prêmios definidos antes de ser aberta
       const prizes = await this.prizesRepository.findByRaffleId(raffle.id);
-      if (prizes.length === 0) {
+      if (prizes.length === AppConstants.ZERO) {
         throw new AppError(
           'Não é possível abrir uma rifa sem prêmios definidos.',
           StatusCodes.BAD_REQUEST
@@ -210,22 +209,26 @@ export class RafflesService {
   }
 
   private validateId(id: number): void {
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= AppConstants.ZERO) {
       throw new AppError('ID da rifa inválido.', StatusCodes.BAD_REQUEST);
     }
   }
 
   private validatePagination(page: number, limit: number): void {
-    if (!Number.isInteger(page) || page <= 0) {
+    if (!Number.isInteger(page) || page <= AppConstants.ZERO) {
       throw new AppError(
         `Parâmetro "page" deve ser um número inteiro maior que zero.`,
         StatusCodes.BAD_REQUEST
       );
     }
 
-    if (!Number.isInteger(limit) || limit <= 0 || limit > RafflesService.PAGINATION_MAX_LIMIT) {
+    if (
+      !Number.isInteger(limit) ||
+      limit <= AppConstants.ZERO ||
+      limit > AppConstants.PAGINATION_MAX_LIMIT
+    ) {
       throw new AppError(
-        `Parâmetro "limit" deve ser um número inteiro entre 1 e ${RafflesService.PAGINATION_MAX_LIMIT}.`,
+        `Parâmetro "limit" deve ser um número inteiro entre ${AppConstants.ONE} e ${AppConstants.PAGINATION_MAX_LIMIT}.`,
         StatusCodes.BAD_REQUEST
       );
     }
@@ -272,7 +275,7 @@ export class RafflesService {
   }
 
   private sanitizeUpdateData(data: UpdateRaffleDTO): UpdateRaffleDTO {
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(data).length === AppConstants.ZERO) {
       throw new AppError(
         'É necessário informar ao menos um campo para atualização.',
         StatusCodes.BAD_REQUEST
@@ -320,7 +323,7 @@ export class RafflesService {
       sanitized.drawDate = raffleDrawDate;
     }
 
-    if (Object.keys(sanitized).length === 0) {
+    if (Object.keys(sanitized).length === AppConstants.ZERO) {
       throw new AppError('Não há campos válidos para atualização.', StatusCodes.BAD_REQUEST);
     }
 
@@ -361,7 +364,7 @@ export class RafflesService {
   }
 
   private validateUserId(userId: number): void {
-    if (!Number.isInteger(userId) || userId <= 0) {
+    if (!Number.isInteger(userId) || userId <= AppConstants.ZERO) {
       throw new AppError('O ID do usuário da rifa é inválido.', StatusCodes.BAD_REQUEST);
     }
   }
@@ -374,7 +377,7 @@ export class RafflesService {
       );
     }
 
-    if (startNumber < 0 || endNumber < 0) {
+    if (startNumber < AppConstants.ZERO || endNumber < AppConstants.ZERO) {
       throw new AppError('Os números da rifa não podem ser negativos.', StatusCodes.BAD_REQUEST);
     }
 
@@ -387,7 +390,7 @@ export class RafflesService {
   }
 
   private validatePricePerNumber(pricePerNumber: number): void {
-    if (!Number.isFinite(pricePerNumber) || pricePerNumber <= 0) {
+    if (!Number.isFinite(pricePerNumber) || pricePerNumber <= AppConstants.ZERO) {
       throw new AppError(
         'O valor por número da rifa deve ser maior que zero.',
         StatusCodes.BAD_REQUEST

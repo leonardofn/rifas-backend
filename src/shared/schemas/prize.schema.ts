@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AppConstants } from '@shared/constants';
+
 export const prizeIdParamsSchema = z.object({
   id: z.coerce
     .number({ error: `Parâmetro "id" deve ser um número inteiro positivo.` })
@@ -21,7 +23,7 @@ export const createPrizeBodySchema = z.object({
     .positive(),
   title: z
     .string({ error: `Campo "title" é obrigatório e deve ser uma string.` })
-    .min(1, { error: `Campo "title" não pode ser vazio.` }),
+    .min(AppConstants.ONE, { error: `Campo "title" não pode ser vazio.` }),
   description: z.string({ error: `Campo "description" deve ser uma string.` }).optional(),
   imageUrl: z.url({ error: `Campo "imageUrl" deve ser uma URL válida.` }).optional(),
   prizeOrder: z
@@ -36,7 +38,10 @@ export const createPrizeBodySchema = z.object({
 });
 
 export const updatePrizeBodySchema = z.object({
-  title: z.string().min(1, { error: `Campo "title" não pode ser vazio.` }).optional(),
+  title: z
+    .string()
+    .min(AppConstants.ONE, { error: `Campo "title" não pode ser vazio.` })
+    .optional(),
   description: z.string({ error: `Campo "description" deve ser uma string.` }).optional(),
   imageUrl: z.url({ error: `Campo "imageUrl" deve ser uma URL válida.` }).optional(),
   prizeOrder: z
