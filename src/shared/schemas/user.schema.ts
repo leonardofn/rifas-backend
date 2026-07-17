@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { AppConstants } from '@shared/constants';
+import { findPaginatedBaseQuerySchema } from './base.schema';
 
 export const userIdParamsSchema = z.object({
   id: z.coerce
@@ -52,29 +53,7 @@ export const updateUserBodySchema = z.object({
   password: userPasswordSchema.optional()
 });
 
-export const findUsersPaginatedQuerySchema = z.object({
-  page: z.coerce
-    .number({
-      error: `Campo "page" deve ser um número inteiro positivo.`
-    })
-    .int({
-      error: `Campo "page" deve ser um número inteiro positivo.`
-    })
-    .positive({
-      error: `Campo "page" deve ser um número inteiro positivo.`
-    })
-    .default(AppConstants.DEFAULT_PAGE),
-  limit: z.coerce
-    .number({
-      error: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .int({
-      error: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .positive({
-      error: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .default(AppConstants.DEFAULT_USERS_LIMIT),
+export const findUsersPaginatedQuerySchema = findPaginatedBaseQuerySchema.extend({
   search: z
     .string({ error: `Campo "search" deve ser uma string.` })
     .trim()

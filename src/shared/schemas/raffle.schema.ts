@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { AppConstants } from '@shared/constants';
 import { RaffleStatus } from '@shared/enums/ruffle-status';
+import { findPaginatedBaseQuerySchema } from './base.schema';
 
 export const raffleIdParamsSchema = z.object({
   id: z.coerce
@@ -99,35 +100,11 @@ export const changeStatusBodySchema = z.object({
   })
 });
 
-export const findPaginatedBaseQuerySchema = z.object({
-  page: z.coerce
-    .number({
-      error: `Campo "page" deve ser um número inteiro positivo.`
+export const findPaginatedQuerySchema = findPaginatedBaseQuerySchema.extend({
+  status: z
+    .enum(RaffleStatus, {
+      error: `Campo "status" inválido. Valores aceitos: ${Object.values(RaffleStatus).join(', ')}.`
     })
-    .int({
-      error: `Campo "page" deve ser um número inteiro positivo.`
-    })
-    .positive({
-      message: `Campo "page" deve ser um número inteiro positivo.`
-    })
-    .default(AppConstants.DEFAULT_PAGE),
-  limit: z.coerce
-    .number({
-      error: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .int({
-      error: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .positive({
-      message: `Campo "limit" deve ser um número inteiro positivo.`
-    })
-    .default(AppConstants.DEFAULT_LIMIT)
-});
-
-export const findPaginatedQuerySchema = z.object({
-  ...findPaginatedBaseQuerySchema.shape,
-  status: z.enum(RaffleStatus, {
-    error: `Campo "status" inválido. Valores aceitos: ${Object.values(RaffleStatus).join(', ')}.`
-  }),
+    .optional(),
   userId: userIdParamsSchema.shape.userId.optional()
 });

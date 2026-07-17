@@ -1,6 +1,8 @@
+import { z } from 'zod';
+
 import { AppConstants } from '@shared/constants';
 import { PaymentStatus } from '@shared/enums/payment-status';
-import { z } from 'zod';
+import { findPaginatedBaseQuerySchema } from './base.schema';
 
 export const purchaseIdParamsSchema = z.object({
   id: z.coerce
@@ -51,8 +53,6 @@ export const updateRafflePurchaseBodySchema = z.object({
     .optional()
 });
 
-export const findPurchasesPaginatedQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().optional(),
+export const findPurchasesPaginatedQuerySchema = findPaginatedBaseQuerySchema.extend({
   paymentStatus: z.enum(Object.values(PaymentStatus)).optional()
 });
