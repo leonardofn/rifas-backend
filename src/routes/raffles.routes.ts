@@ -1,9 +1,9 @@
 import { RafflesController } from '@controllers/raffles.controller';
 import { validate } from '@shared/middlewares/validate.middleware';
+import { findPaginatedBaseQuerySchema } from '@shared/schemas/base.schema';
 import {
   changeStatusBodySchema,
   createRaffleBodySchema,
-  findPaginatedBaseQuerySchema,
   findPaginatedQuerySchema,
   publicIdParamsSchema,
   raffleIdParamsSchema,
