@@ -1,9 +1,9 @@
-import { type AuthenticatedUser } from '@shared/interfaces/authenticated-user.interface';
+import { type IAuthenticatedUser } from '@shared/interfaces/authenticated-user.interface';
 
 declare global {
   namespace Express {
     interface Request {
-      authUser?: AuthenticatedUser;
+      authUser?: IAuthenticatedUser;
     }
   }
 }
