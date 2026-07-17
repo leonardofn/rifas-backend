@@ -41,7 +41,7 @@ export class UsersService {
 
   async findPaginated(
     page = 1,
-    limit = 10,
+    limit = 12,
     filters?: UserFiltersDTO
   ): Promise<PaginatedResponse<User>> {
     this.validatePagination(page, limit);

@@ -50,7 +50,7 @@ export class UsersRepository {
 
   async findPaginated(
     page: number = 1,
-    limit: number = 10,
+    limit: number = 12,
     filters?: UserFiltersDTO
   ): Promise<PaginatedResponse<User>> {
     const query = this.ormRepository.createQueryBuilder('user');

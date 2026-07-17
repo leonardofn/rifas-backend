@@ -91,7 +91,7 @@ export class RafflesService {
 
   async findPaginated(
     page = 1,
-    limit = 10,
+    limit = 12,
     filters?: RaffleFilters
   ): Promise<PaginatedResponse<Raffle>> {
     this.validatePagination(page, limit);

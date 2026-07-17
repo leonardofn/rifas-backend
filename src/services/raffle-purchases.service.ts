@@ -1,3 +1,4 @@
+import type { PaginatedResponse } from '@dtos/pagination.dto';
 import {
   type CreateRafflePurchaseDTO,
   type UpdateRafflePurchaseDTO
@@ -9,12 +10,6 @@ import { RaffleStatus } from '@shared/enums/ruffle-status';
 import { AppError } from '@shared/errors/app-error';
 import { type IPurchasePaginationOptions } from '@shared/interfaces/pagination.interface';
 import { StatusCodes } from 'http-status-codes';
-
-interface IPaginatedPurchases {
-  data: RafflePurchase[];
-  total: number;
-  currentPage: number;
-}
 
 export class RafflePurchasesService {
   private readonly purchasesRepository: RafflePurchaseRepository;
@@ -82,8 +77,8 @@ export class RafflePurchasesService {
   async findByRaffleId(
     raffleId: number,
     options: IPurchasePaginationOptions
-  ): Promise<IPaginatedPurchases> {
-    const { page = 1, limit = 10, paymentStatus } = options;
+  ): Promise<PaginatedResponse<RafflePurchase>> {
+    const { page = 1, limit = 12, paymentStatus } = options;
 
     this.validateId(raffleId);
     this.validatePagination(page, limit);
@@ -99,8 +94,8 @@ export class RafflePurchasesService {
   async findByUserId(
     userId: number,
     options: IPurchasePaginationOptions
-  ): Promise<IPaginatedPurchases> {
-    const { page = 1, limit = 10, paymentStatus } = options;
+  ): Promise<PaginatedResponse<RafflePurchase>> {
+    const { page = 1, limit = 12, paymentStatus } = options;
 
     this.validateId(userId);
     this.validatePagination(page, limit);

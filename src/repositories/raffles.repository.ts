@@ -68,7 +68,7 @@ export class RaffleRepository {
    */
   async findPaginated(
     page: number = 1,
-    limit: number = 10,
+    limit: number = 12,
     filters?: { status?: RaffleStatus; userId?: number }
   ): Promise<PaginatedResponse<Raffle>> {
     const query = this.ormRepository.createQueryBuilder('raffle');

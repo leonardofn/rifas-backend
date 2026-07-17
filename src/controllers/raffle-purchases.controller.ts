@@ -43,7 +43,7 @@ export class RafflePurchasesController {
 
     const paginationOptions: IPurchasePaginationOptions = {
       page: Number(page) || 1,
-      limit: Number(limit) || 10,
+      limit: Number(limit) || 12,
       paymentStatus: (paymentStatus as PaymentStatus) || undefined
     };
 
@@ -62,7 +62,7 @@ export class RafflePurchasesController {
 
     const paginationOptions: IPurchasePaginationOptions = {
       page: Number(page) || 1,
-      limit: Number(limit) || 10,
+      limit: Number(limit) || 12,
       paymentStatus: (paymentStatus as PaymentStatus) || undefined
     };
 

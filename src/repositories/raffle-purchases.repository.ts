@@ -1,4 +1,5 @@
 import { AppDataSource } from '@config/data-source';
+import type { PaginatedResponse } from '@dtos/pagination.dto';
 import {
   type CreateRafflePurchaseDTO,
   type UpdateRafflePurchaseDTO
@@ -7,12 +8,6 @@ import { RafflePurchase } from '@entities/raffle-purchase.entity';
 import { PaymentStatus } from '@shared/enums/payment-status';
 import { runInTransaction } from '@shared/typeorm/run-in-transaction';
 import { type DeepPartial, type DeleteResult, type Repository, type UpdateResult } from 'typeorm';
-
-interface IPaginatedPurchases<T> {
-  data: T[];
-  total: number;
-  currentPage: number;
-}
 
 export class RafflePurchaseRepository {
   private readonly ormRepository: Repository<RafflePurchase>;
@@ -54,9 +49,9 @@ export class RafflePurchaseRepository {
   async findByRaffleId(
     raffleId: number,
     page: number = 1,
-    limit: number = 10,
+    limit: number = 12,
     paymentStatus?: PaymentStatus
-  ): Promise<IPaginatedPurchases<RafflePurchase>> {
+  ): Promise<PaginatedResponse<RafflePurchase>> {
     const query = this.ormRepository
       .createQueryBuilder('purchase')
       .where('purchase.raffle_id = :raffleId', { raffleId });
@@ -71,7 +66,14 @@ export class RafflePurchaseRepository {
 
     const [data, total] = await query.getManyAndCount();
 
-    return { data, total, currentPage: page };
+    return {
+      items: data,
+      totalItems: total,
+      itemCount: data.length,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   /**
@@ -80,9 +82,9 @@ export class RafflePurchaseRepository {
   async findByUserId(
     userId: number,
     page: number = 1,
-    limit: number = 10,
+    limit: number = 12,
     paymentStatus?: PaymentStatus
-  ): Promise<IPaginatedPurchases<RafflePurchase>> {
+  ): Promise<PaginatedResponse<RafflePurchase>> {
     const query = this.ormRepository
       .createQueryBuilder('purchase')
       .where('purchase.user_id = :userId', { userId });
@@ -97,7 +99,14 @@ export class RafflePurchaseRepository {
 
     const [data, total] = await query.getManyAndCount();
 
-    return { data, total, currentPage: page };
+    return {
+      items: data,
+      totalItems: total,
+      itemCount: data.length,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   /**
