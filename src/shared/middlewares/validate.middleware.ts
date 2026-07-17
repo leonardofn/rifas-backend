@@ -17,7 +17,12 @@ export function validate(schema: ZodType, target: ValidateTarget = 'body') {
     }
 
     if (target === 'query') {
-      Object.assign(req.query, result.data);
+      Object.defineProperty(req, 'query', {
+        value: result.data,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
       next();
       return;
     }
