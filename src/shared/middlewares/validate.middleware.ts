@@ -11,8 +11,21 @@ export function validate(schema: ZodType, target: ValidateTarget = 'body') {
     const result = schema.safeParse(req[target]);
 
     if (!result.success) {
-      const message = result.error.issues.map(i => i.message).join('; ');
-      next(new AppError(message, StatusCodes.BAD_REQUEST));
+      const validationErrors = result.error.issues.reduce(
+        (acc, issue) => {
+          acc[issue.path.join('.')] = issue.message;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      const error = new AppError(
+        'Erro de validação dos dados de entrada.',
+        StatusCodes.BAD_REQUEST,
+        validationErrors
+      );
+
+      next(error);
       return;
     }
 

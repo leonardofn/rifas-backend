@@ -3,6 +3,7 @@ import { AppError } from '@shared/errors/app-error';
 import Logger from '@shared/loggers/logger';
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { ZodError } from 'zod';
 
 type ErrorResponse = {
   statusCode: number;
@@ -16,6 +17,14 @@ type ErrorResponse = {
 function normalizeError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error;
+  }
+
+  if (error instanceof ZodError) {
+    return new AppError(
+      'Erro de validação dos dados de entrada.',
+      StatusCodes.BAD_REQUEST,
+      error.issues
+    );
   }
 
   if (error instanceof SyntaxError) {
@@ -48,7 +57,7 @@ export function errorHandler(
     message: appError.message
   };
 
-  if (appError.details !== undefined) {
+  if (appError.details) {
     payload.details = appError.details;
   }
 
