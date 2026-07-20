@@ -35,6 +35,23 @@ export class User {
   @Column({ name: 'refresh_token_expires_at', type: 'timestamptz', nullable: true, select: false })
   refreshTokenExpiresAt!: Date | null;
 
+  @Column({
+    name: 'password_reset_token_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    select: false
+  })
+  passwordResetTokenHash!: string | null;
+
+  @Column({
+    name: 'password_reset_token_expires_at',
+    type: 'timestamptz',
+    nullable: true,
+    select: false
+  })
+  passwordResetTokenExpiresAt!: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

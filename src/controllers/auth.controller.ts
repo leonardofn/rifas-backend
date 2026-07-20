@@ -1,4 +1,10 @@
-import { type LoginDTO, type RefreshTokenDTO, type RegisterDTO } from '@dtos/auth.dto';
+import {
+  type ForgotPasswordDTO,
+  type LoginDTO,
+  type RefreshTokenDTO,
+  type RegisterDTO,
+  type ResetPasswordDTO
+} from '@dtos/auth.dto';
 import { AuthService } from '@services/auth.service';
 import { AppError } from '@shared/errors/app-error';
 import { type Request, type Response } from 'express';
@@ -59,6 +65,24 @@ export class AuthController {
     }
 
     await this.authService.logout(req.authUser.id);
+    res.status(StatusCodes.NO_CONTENT).send();
+  };
+
+  /**
+   * POST /auth/forgot-password
+   */
+  forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    const data = req.body as ForgotPasswordDTO;
+    await this.authService.forgotPassword(data);
+    res.status(StatusCodes.NO_CONTENT).send();
+  };
+
+  /**
+   * POST /auth/reset-password
+   */
+  resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const data = req.body as ResetPasswordDTO;
+    await this.authService.resetPassword(data);
     res.status(StatusCodes.NO_CONTENT).send();
   };
 }

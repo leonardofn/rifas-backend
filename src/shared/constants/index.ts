@@ -18,6 +18,8 @@ export abstract class AppConstants {
 
   static readonly JWT_ACCESS_TOKEN_TTL_SECONDS = 900;
   static readonly JWT_REFRESH_TOKEN_TTL_SECONDS = 604800;
+  static readonly PASSWORD_RESET_TOKEN_TTL_SECONDS = 900;
+  static readonly PASSWORD_RESET_TOKEN_BYTE_LENGTH = 32;
   static readonly MILLISECONDS_IN_SECOND = 1000;
   static readonly SECONDS_IN_DAY = 86400;
   static readonly SECONDS_IN_YEAR = 31536000;

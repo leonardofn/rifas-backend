@@ -46,5 +46,10 @@ export const env = {
   jwtRefreshTokenTtlSeconds: readNumberEnv(
     process.env.JWT_REFRESH_TOKEN_TTL_SECONDS,
     AppConstants.JWT_REFRESH_TOKEN_TTL_SECONDS
-  )
+  ),
+  smtpHost: readStringEnv(process.env.SMTP_HOST, 'localhost'),
+  smtpPort: readNumberEnv(process.env.SMTP_PORT, 587),
+  smtpUser: readStringEnv(process.env.SMTP_USER, ''),
+  smtpPassword: readStringEnv(process.env.SMTP_PASSWORD, ''),
+  smtpFrom: readStringEnv(process.env.SMTP_FROM, 'noreply@rifas.com')
 };

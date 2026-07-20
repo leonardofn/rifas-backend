@@ -50,3 +50,15 @@ export const refreshTokenBodySchema = z.object({
     .trim()
     .min(AppConstants.ONE, { error: `Campo "refreshToken" não pode ser vazio.` })
 });
+
+export const forgotPasswordBodySchema = z.object({
+  email: emailSchema
+});
+
+export const resetPasswordBodySchema = z.object({
+  token: z
+    .string({ error: `Campo "token" é obrigatório e deve ser uma string.` })
+    .trim()
+    .min(AppConstants.ONE, { error: `Campo "token" não pode ser vazio.` }),
+  password: passwordSchema
+});

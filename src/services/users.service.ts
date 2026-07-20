@@ -90,6 +90,31 @@ export class UsersService {
     return await this.usersRepository.clearRefreshToken(id);
   }
 
+  async findByIdWithPasswordReset(id: number): Promise<User | null> {
+    return await this.usersRepository.findByIdWithPasswordReset(id);
+  }
+
+  async updatePasswordResetToken(
+    id: number,
+    passwordResetTokenHash: string,
+    passwordResetTokenExpiresAt: Date
+  ): Promise<UpdateResult> {
+    return await this.usersRepository.updatePasswordResetToken(
+      id,
+      passwordResetTokenHash,
+      passwordResetTokenExpiresAt
+    );
+  }
+
+  async clearPasswordResetToken(id: number): Promise<UpdateResult> {
+    return await this.usersRepository.clearPasswordResetToken(id);
+  }
+
+  async updatePassword(id: number, newPassword: string): Promise<UpdateResult> {
+    const passwordHash = await this.hashPassword(newPassword);
+    return await this.usersRepository.updatePassword(id, passwordHash);
+  }
+
   async delete(id: number): Promise<void> {
     await this.findById(id);
     await this.usersRepository.delete(id);

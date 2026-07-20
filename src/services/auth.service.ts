@@ -2,23 +2,29 @@ import { env } from '@config/env';
 import {
   type AuthResponseDTO,
   type AuthTokensDTO,
+  type ForgotPasswordDTO,
   type LoginDTO,
   type RefreshTokenDTO,
-  type RegisterDTO
+  type RegisterDTO,
+  type ResetPasswordDTO
 } from '@dtos/auth.dto';
 import { type User } from '@entities/user.entity';
+import { EmailService } from '@services/email.service';
 import { UsersService } from '@services/users.service';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@shared/auth/jwt';
 import { AppConstants } from '@shared/constants';
 import { AppError } from '@shared/errors/app-error';
 import { compare, hash } from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { StatusCodes } from 'http-status-codes';
 
 export class AuthService {
   private readonly usersService: UsersService;
+  private readonly emailService: EmailService;
 
-  constructor(usersService = new UsersService()) {
+  constructor(usersService = new UsersService(), emailService = new EmailService()) {
     this.usersService = usersService;
+    this.emailService = emailService;
   }
 
   async register(data: RegisterDTO): Promise<AuthResponseDTO> {
@@ -90,6 +96,61 @@ export class AuthService {
   async logout(userId: number): Promise<void> {
     await this.usersService.findById(userId);
     await this.usersService.clearRefreshToken(userId);
+  }
+
+  async forgotPassword(data: ForgotPasswordDTO): Promise<void> {
+    const email = data.email.trim().toLowerCase();
+    const user = await this.usersService.findByEmailWithCredentials(email);
+
+    // Retorna silenciosamente se o e-mail não existir (proteção anti-enumeração)
+    if (!user) {
+      return;
+    }
+
+    const randomPart = randomBytes(AppConstants.PASSWORD_RESET_TOKEN_BYTE_LENGTH).toString('hex');
+    const resetToken = `${user.id}.${randomPart}`;
+    const resetTokenHash = await hash(resetToken, AppConstants.BCRYPT_SALT_ROUNDS);
+    const resetTokenExpiresAt = new Date(
+      Date.now() +
+        AppConstants.PASSWORD_RESET_TOKEN_TTL_SECONDS * AppConstants.MILLISECONDS_IN_SECOND
+    );
+
+    await this.usersService.updatePasswordResetToken(user.id, resetTokenHash, resetTokenExpiresAt);
+    await this.emailService.sendPasswordResetEmail(email, resetToken);
+  }
+
+  async resetPassword(data: ResetPasswordDTO): Promise<void> {
+    const dotIndex = data.token.indexOf('.');
+
+    if (dotIndex === -1) {
+      throw new AppError('Token de redefinição inválido.', StatusCodes.UNAUTHORIZED);
+    }
+
+    const userId = Number(data.token.substring(AppConstants.ZERO, dotIndex));
+
+    if (!Number.isInteger(userId) || userId <= AppConstants.ZERO) {
+      throw new AppError('Token de redefinição inválido.', StatusCodes.UNAUTHORIZED);
+    }
+
+    const user = await this.usersService.findByIdWithPasswordReset(userId);
+
+    if (!user?.passwordResetTokenHash || !user.passwordResetTokenExpiresAt) {
+      throw new AppError('Token de redefinição inválido.', StatusCodes.UNAUTHORIZED);
+    }
+
+    if (user.passwordResetTokenExpiresAt.getTime() < Date.now()) {
+      await this.usersService.clearPasswordResetToken(userId);
+      throw new AppError('Token de redefinição expirado.', StatusCodes.UNAUTHORIZED);
+    }
+
+    const isTokenValid = await compare(data.token, user.passwordResetTokenHash);
+
+    if (!isTokenValid) {
+      throw new AppError('Token de redefinição inválido.', StatusCodes.UNAUTHORIZED);
+    }
+
+    await this.usersService.updatePassword(userId, data.password);
+    await this.usersService.clearPasswordResetToken(userId);
   }
 
   private mapUserResponse(user: User): AuthResponseDTO['user'] {

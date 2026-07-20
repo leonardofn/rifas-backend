@@ -105,6 +105,42 @@ export class UsersRepository {
     });
   }
 
+  async findByIdWithPasswordReset(id: number): Promise<User | null> {
+    return await this.ormRepository
+      .createQueryBuilder('user')
+      .addSelect(['user.passwordResetTokenHash', 'user.passwordResetTokenExpiresAt'])
+      .where('user.id = :id', { id })
+      .getOne();
+  }
+
+  async updatePasswordResetToken(
+    id: number,
+    passwordResetTokenHash: string,
+    passwordResetTokenExpiresAt: Date
+  ): Promise<UpdateResult> {
+    return await runInTransaction(this.ormRepository, async manager => {
+      return await manager.update(User, id, {
+        passwordResetTokenHash,
+        passwordResetTokenExpiresAt
+      });
+    });
+  }
+
+  async clearPasswordResetToken(id: number): Promise<UpdateResult> {
+    return await runInTransaction(this.ormRepository, async manager => {
+      return await manager.update(User, id, {
+        passwordResetTokenHash: null,
+        passwordResetTokenExpiresAt: null
+      });
+    });
+  }
+
+  async updatePassword(id: number, passwordHash: string): Promise<UpdateResult> {
+    return await runInTransaction(this.ormRepository, async manager => {
+      return await manager.update(User, id, { password: passwordHash });
+    });
+  }
+
   async delete(id: number): Promise<DeleteResult> {
     return await runInTransaction(this.ormRepository, async manager => {
       return await manager.delete(User, { id });

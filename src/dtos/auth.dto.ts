@@ -13,6 +13,15 @@ export interface RefreshTokenDTO {
   refreshToken: string;
 }
 
+export interface ForgotPasswordDTO {
+  email: string;
+}
+
+export interface ResetPasswordDTO {
+  token: string;
+  password: string;
+}
+
 export interface AuthTokensDTO {
   accessToken: string;
   refreshToken: string;
