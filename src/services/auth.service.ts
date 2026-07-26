@@ -110,10 +110,9 @@ export class AuthService {
     const randomPart = randomBytes(AppConstants.PASSWORD_RESET_TOKEN_BYTE_LENGTH).toString('hex');
     const resetToken = `${user.id}.${randomPart}`;
     const resetTokenHash = await hash(resetToken, AppConstants.BCRYPT_SALT_ROUNDS);
-    const resetTokenExpiresAt = new Date(
-      Date.now() +
-        AppConstants.PASSWORD_RESET_TOKEN_TTL_SECONDS * AppConstants.MILLISECONDS_IN_SECOND
-    );
+    const passwordResetTokenTtlInMilliseconds =
+      AppConstants.PASSWORD_RESET_TOKEN_TTL_SECONDS * AppConstants.MILLISECONDS_IN_SECOND;
+    const resetTokenExpiresAt = new Date(Date.now() + passwordResetTokenTtlInMilliseconds);
 
     await this.usersService.updatePasswordResetToken(user.id, resetTokenHash, resetTokenExpiresAt);
     await this.emailService.sendPasswordResetEmail(email, resetToken);
